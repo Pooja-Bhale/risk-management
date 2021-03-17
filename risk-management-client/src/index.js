@@ -6,7 +6,7 @@ import { Amplify } from 'aws-amplify';
 import config from './config';
 import { BrowserRouter as Router } from 'react-router-dom';
 import reportWebVitals from './reportWebVitals';
-import Auth from "@aws-amplify/api"
+// import Auth from "@aws-amplify/api"
 
 Amplify.configure({
   Auth: {

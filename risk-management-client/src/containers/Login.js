@@ -7,7 +7,6 @@ import { useAppContext } from "../libs/contextLib";
 import { useFormFields } from "../libs/hooksLib";
 import { onError } from "../libs/errorLib";
 import "./Login.css";
-import API from "@aws-amplify/api";
 
 
 export default function Login() {
@@ -16,7 +15,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [fields, handleFieldChange] = useFormFields({
     email: "",
-    password: ""
+    password: "",
   });
 
   function validateForm() {
@@ -31,22 +30,7 @@ export default function Login() {
     try {
       await Auth.signIn(fields.email, fields.password);
       userHasAuthenticated(true);
-      
-        const body = {
-          firstName: "pooja",
-          lastName: "bhale",
-         // cognitoId: event.requestContext.identity.cognitoIdentityId,
-          email: fields.email,
-        };
-        return API.post("riskmanagement", "/employee/addEmployee", {
-          body: body
-      });
-      // console.log("log in happen")
-      // const { attributes } = await Auth.currentUserInfo();
-
-      // console.log(attributes);
-
-      //history.push("/");
+      history.push("/teamsInfo");
     } catch (e) {
       onError(e);
       setIsLoading(false);
@@ -57,18 +41,20 @@ export default function Login() {
     <div className="Login">
       <Form onSubmit={handleSubmit}>
         <Form.Group size="lg" controlId="email">
-          <Form.Label>Email</Form.Label>
+          <Form.Label>Email *</Form.Label>
           <Form.Control
             autoFocus
             type="email"
+            placeholder="Enter your email address"
             value={fields.email}
             onChange={handleFieldChange}
           />
         </Form.Group>
         <Form.Group size="lg" controlId="password">
-          <Form.Label>Password</Form.Label>
+          <Form.Label>Password *</Form.Label>
           <Form.Control
             type="password"
+            placeholder="Enter your password"
             value={fields.password}
             onChange={handleFieldChange}
           />
@@ -82,6 +68,10 @@ export default function Login() {
         >
           Login
         </LoaderButton>
+        <p>
+          No account?
+          <a href="/signup"> Create account</a>
+        </p>
       </Form>
     </div>
   );

@@ -22,3 +22,9 @@ functions:
           method: POST
           cors: true
           authorizer: aws_iam
+      - http:
+          path: /team/getTeamName
+          method: get
+          cors: true
+          authorizer: aws_iam
+          

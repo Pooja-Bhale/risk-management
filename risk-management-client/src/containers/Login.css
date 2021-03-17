@@ -7,4 +7,12 @@
     margin: 0 auto;
     max-width: 320px;
   }
+
+ .form-control{
+    padding: 20px;
+  }
+
+  p {
+    margin-top: 10px;
+  }
 }

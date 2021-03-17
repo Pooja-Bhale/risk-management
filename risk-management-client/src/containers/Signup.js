@@ -68,21 +68,11 @@ export default function Signup() {
         const body = {
           firstName: fields.firstName,
           lastName: fields.lastName,
-         // cognitoId: event.requestContext.identity.cognitoIdentityId,
           email: fields.email,
         };
         return API.post("riskmanagement", "/employee/addEmployee", {
           body: body
       });
-        // const response = await fetch(
-        //   " https://t321qoshv6.execute-api.ap-south-1.amazonaws.com/dev/employee/addEmployee",
-        //   {
-        //     method: "POST",
-        //     headers: { "Content-Type": "application/json" },
-        //     body: JSON.stringify(body),
-        //   }
-        // );
-        //console.log(response);
         
       } catch (err) {
         console.error(err.message);
@@ -123,42 +113,47 @@ export default function Signup() {
     return (
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="firstName" size="lg">
-          <Form.Label>First Name</Form.Label>
+          <Form.Label>First Name *</Form.Label>
           <Form.Control
             autoFocus
             type="firstName"
+            placeholder="Enter your first name"
             value={fields.firstName}
             onChange={handleFieldChange}
           />
         </Form.Group>
         <Form.Group controlId="lastName" size="lg">
-          <Form.Label>Last Name</Form.Label>
+          <Form.Label>Last Name *</Form.Label>
           <Form.Control
             type="lastName"
+            placeholder="Enter your last name"
             value={fields.lastName}
             onChange={handleFieldChange}
           />
         </Form.Group>
         <Form.Group controlId="email" size="lg">
-          <Form.Label>Email</Form.Label>
+          <Form.Label>Email *</Form.Label>
           <Form.Control
             type="email"
+            placeholder="Enter your email address"
             value={fields.email}
             onChange={handleFieldChange}
           />
         </Form.Group>
         <Form.Group controlId="password" size="lg">
-          <Form.Label>Password</Form.Label>
+          <Form.Label>Password *</Form.Label>
           <Form.Control
             type="password"
+            placeholder="Enter your password"
             value={fields.password}
             onChange={handleFieldChange}
           />
         </Form.Group>
         <Form.Group controlId="confirmPassword" size="lg">
-          <Form.Label>Confirm Password</Form.Label>
+          <Form.Label>Confirm Password *</Form.Label>
           <Form.Control
             type="password"
+            placeholder="Enter your password again"
             onChange={handleFieldChange}
             value={fields.confirmPassword}
           />
@@ -167,12 +162,15 @@ export default function Signup() {
           block
           size="lg"
           type="submit"
-          variant="success"
           isLoading={isLoading}
           disabled={!validateForm()}
         >
           Signup
         </LoaderButton>
+        <p>
+          Have an account?
+          <a href="/login"> Sign in</a>
+        </p>
       </Form>
     );
   }
