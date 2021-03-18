@@ -238,8 +238,6 @@ async function getTeamsInfo(cognitoId) {
   return teamInfo;
 }
 
-
-
 module.exports = {
   addEmployee,
   getEmployeeId,

@@ -1,8 +1,8 @@
 const dbService = require("./dbService");
 
 async function getDayRisk(cognitoId, date) {
-
   let teamInfo = await dbService.getTeamsInfo(cognitoId);
+  console.log(teamInfo, "teamInfo msg");
   let teamIdArray = teamInfo.map(function (teamId) {
     return teamId["teamId"];
   });
@@ -62,12 +62,80 @@ async function getDayRisk(cognitoId, date) {
       riskArray.push(risk);
     }
   }
-  const result = {[formattedDate]:riskArray}
+  const result = { [formattedDate]: riskArray };
 
   return result;
 }
 
-async function getWeeklyRisk(cognitoId ,date) {
+async function getPreviousNextDayRisk(teamId, date) {
+  let teamInfo = await dbService.getTeamDetails(teamId.teamId);
+  let teamInfoArray = new Array(teamInfo);
+
+  let teamThresholdArray = teamInfoArray.map(function (teamThreshold) {
+    return parseInt(teamThreshold["threshold"]);
+  });
+
+  let teamIdArray = new Array();
+  teamIdArray.push(teamId.teamId);
+
+  let TeamMemberCount = await dbService.getTeamMemberCount(teamIdArray);
+  let employeeOnLeaveCountArray = new Array();
+
+  for (let index = 0; index < teamIdArray.length; index++) {
+    let employeeId = await dbService.getEmployeeIdOfTeamMember(
+      teamIdArray[index]
+    );
+    let employeeIdArray = employeeId.map(function (employeeId) {
+      return employeeId["employeeId"];
+    });
+
+    let dateIs = new Date(date);
+    let d = new Date(dateIs),
+      month = "" + (d.getMonth() + 1),
+      day = "" + d.getDate(),
+      year = d.getFullYear();
+
+    if (month.length < 2) month = "0" + month;
+    if (day.length < 2) day = "0" + day;
+
+    var formattedDate = [year, month, day].join("-");
+    let employeeOnLeaveCount = await dbService.getEmployeeOnLeave(
+      employeeIdArray,
+      formattedDate
+    );
+    employeeOnLeaveCountArray.push(employeeOnLeaveCount);
+  }
+
+  let percentOfUnavailableEmployeeArray = new Array();
+
+  for (let index = 0; index < TeamMemberCount.length; index++) {
+    let percentOfUnavailableEmployee =
+      (employeeOnLeaveCountArray[index] /
+        TeamMemberCount[index].dataValues.count) *
+      100;
+    percentOfUnavailableEmployeeArray.push(percentOfUnavailableEmployee);
+  }
+
+  let riskArray = new Array();
+  for (
+    let index = 0;
+    index < percentOfUnavailableEmployeeArray.length;
+    index++
+  ) {
+    if (percentOfUnavailableEmployeeArray[index] >= teamThresholdArray[index]) {
+      let risk = true;
+      riskArray.push(risk);
+    } else {
+      let risk = false;
+      riskArray.push(risk);
+    }
+  }
+  const result = { [formattedDate]: riskArray };
+
+  return result;
+}
+
+async function getWeeklyRisk(cognitoId, date) {
   let weekDaysDateArray = new Array();
   let startDay =
     date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1);
@@ -84,25 +152,32 @@ async function getWeeklyRisk(cognitoId ,date) {
     weekDaysDateArray.push(new Date(d));
   }
 
-  // let formattedWeekDaysDateArray = new Array();
-  // for (let index = 0; index < weekDaysDateArray.length; index++) {
-  //   let dateIs = new Date(weekDaysDateArray[index]);
-  //   let d = new Date(dateIs),
-  //     month = "" + (d.getMonth() + 1),
-  //     day = "" + d.getDate(),
-  //     year = d.getFullYear();
-
-  //   if (month.length < 2) month = "0" + month;
-  //   if (day.length < 2) day = "0" + day;
-
-  //   let formattedDate = [year, month, day].join("-");
-  //   formattedWeekDaysDateArray.push(formattedDate);
-  // }
-  
   let weeklyRiskArray = new Array();
   for (let index = 0; index < weekDaysDateArray.length; index++) {
+    var weeklyRisk = await getDayRisk(cognitoId, weekDaysDateArray[index]);
+    weeklyRiskArray.push(weeklyRisk);
+  }
 
-    var weeklyRisk = await getDayRisk(cognitoId, weekDaysDateArray[index] )
+  return weeklyRiskArray;
+}
+
+async function getPreviousNextWeekRisk(teamId, startDateOfWeek, endDateOfWeek) {
+  let weekDaysDateArray = new Array();
+
+  for (
+    var d = startDateOfWeek;
+    d <= endDateOfWeek;
+    d.setDate(d.getDate() + 1)
+  ) {
+    weekDaysDateArray.push(new Date(d));
+  }
+
+  let weeklyRiskArray = new Array();
+  for (let index = 0; index < weekDaysDateArray.length; index++) {
+    let weeklyRisk = await getPreviousNextDayRisk(
+      teamId,
+      weekDaysDateArray[index]
+    );
     weeklyRiskArray.push(weeklyRisk);
   }
 
@@ -112,4 +187,6 @@ async function getWeeklyRisk(cognitoId ,date) {
 module.exports = {
   getDayRisk,
   getWeeklyRisk,
+  getPreviousNextDayRisk,
+  getPreviousNextWeekRisk,
 };
