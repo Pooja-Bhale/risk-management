@@ -25,7 +25,7 @@ app.post("/employee/addEmployee", async (req, res) => {
     .catch((error) => res.send(error));
 });
 
-app.get("/team/getDayRisk", async (req, res) => {
+app.get("/risk/getDayRisk", async (req, res) => {
   let cognitoIdentityId =
     req.apiGateway.event.requestContext.identity.cognitoIdentityId;
   let date = new Date();
@@ -38,7 +38,7 @@ app.get("/team/getDayRisk", async (req, res) => {
     .catch((error) => res.send(error));
 });
 
-app.get("/team/getWeeklyRisk", async (req, res) => {
+app.get("/risk/getWeeklyRisk", async (req, res) => {
   let cognitoIdentityId =
     req.apiGateway.event.requestContext.identity.cognitoIdentityId;
   let date = new Date();
@@ -51,7 +51,7 @@ app.get("/team/getWeeklyRisk", async (req, res) => {
     .catch((error) => res.send(error));
 });
 
-app.get("/team/getPreviousNextDayRisk/:teamId/:date", async (req, res) => {
+app.get("/risk/getPreviousNextDayRisk/:teamId/:date", async (req, res) => {
   riskCalculation
     .getPreviousNextDayRisk(req.params)
     .then((results) => {
@@ -61,7 +61,7 @@ app.get("/team/getPreviousNextDayRisk/:teamId/:date", async (req, res) => {
 });
 
 app.get(
-  "/team/getPreviousNextWeekRisk/:teamId/:startDateOfWeek/:endDateOfWeek",
+  "/risk/getPreviousNextWeekRisk/:teamId/:startDateOfWeek/:endDateOfWeek",
   async (req, res) => {
     riskCalculation
       .getPreviousNextWeekRisk(req.params)
@@ -72,31 +72,31 @@ app.get(
   }
 );
 
-app.get("/team/getTeamName", async (req, res) => {
-  // let cognitoIdentityId =
-  //   req.apiGateway.event.requestContext.identity.cognitoIdentityId;
+app.get("/team/getTeamInfo", async (req, res) => {
+  let cognitoIdentityId =
+    req.apiGateway.event.requestContext.identity.cognitoIdentityId;
 
   dbService
-    .getTeamsInfo("ap-south-1:de248c54-4d9b-4bc1-92d3-3c2eee10ea43")
+    .getTeamsInfo(cognitoIdentityId)
     .then((results) => {
       res.send(results);
     })
     .catch((error) => res.send(error));
 });
 
-app.get("/team/test", async (req, res) => {
-  //  let employeeId= [22, 23, 24, 25];
-  let date = new Date();
+// app.get("/team/test", async (req, res) => {
+//   //  let employeeId= [22, 23, 24, 25];
+//   let date = new Date();
 
-  // let teamId = [1, 2, 5];
-  // riskCalculation.getWeeklyRisk(date)
-  riskCalculation
-    .getDayRisk("ap-south-1:de248c54-4d9b-4bc1-92d3-3c2eee10ea43", date)
-    .then((results) => {
-      res.send(results);
-    })
-    .catch((error) => res.send(error));
-});
+//   // let teamId = [1, 2, 5];
+//   // riskCalculation.getWeeklyRisk(date)
+//   riskCalculation
+//     .getDayRisk("ap-south-1:de248c54-4d9b-4bc1-92d3-3c2eee10ea43", date)
+//     .then((results) => {
+//       res.send(results);
+//     })
+//     .catch((error) => res.send(error));
+// });
 
 app.listen(2000, () => console.log("listening to port 2000"));
 

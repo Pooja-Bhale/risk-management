@@ -23,8 +23,14 @@ functions:
           cors: true
           authorizer: aws_iam
       - http:
-          path: /team/getTeamName
-          method: get
+          path: /team/{proxy+}
+          method: ANY
           cors: true
           authorizer: aws_iam
+      - http:
+          path: /risk/{proxy+}
+          method: ANY
+          cors: true
+          authorizer: aws_iam
+          
           

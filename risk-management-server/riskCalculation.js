@@ -56,15 +56,15 @@ async function getDayRisk(cognitoId, date) {
   ) {
     if (percentOfUnavailableEmployeeArray[index] >= teamThresholdArray[index]) {
       let risk = true;
-      riskArray.push(risk);
+      riskArray.push({["teamId"]: teamIdArray[index], ["riskIs"]: risk});
+      console.log(risk);
     } else {
       let risk = false;
-      riskArray.push(risk);
+      riskArray.push({["teamId"]: teamIdArray[index], ["riskIs"]: risk});
     }
   }
-  const result = { [formattedDate]: riskArray };
 
-  return result;
+  return riskArray;
 }
 
 async function getPreviousNextDayRisk(teamId, date) {
