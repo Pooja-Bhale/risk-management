@@ -25,13 +25,24 @@ app.post("/employee/addEmployee", async (req, res) => {
     .catch((error) => res.send(error));
 });
 
+app.post("/leave/addLeave", async (req, res) => {
+  
+  dbService
+    .addLeave(req.body)
+    .then((results) => {
+      res.send(results);
+    })
+    .catch((error) => res.send(error));
+});
+
 app.get("/risk/getDayRisk", async (req, res) => {
-  let cognitoIdentityId =
-    req.apiGateway.event.requestContext.identity.cognitoIdentityId;
+  // let cognitoIdentityId =
+  //   req.apiGateway.event.requestContext.identity.cognitoIdentityId;
+  //"ap-south-1:de248c54-4d9b-4bc1-92d3-3c2eee10ea43"
   let date = new Date();
 
   riskCalculation
-    .getDayRisk(cognitoIdentityId, date)
+    .getDayRisk("ap-south-1:de248c54-4d9b-4bc1-92d3-3c2eee10ea43", date)
     .then((results) => {
       res.send(results);
     })
@@ -39,12 +50,12 @@ app.get("/risk/getDayRisk", async (req, res) => {
 });
 
 app.get("/risk/getWeeklyRisk", async (req, res) => {
-  let cognitoIdentityId =
-    req.apiGateway.event.requestContext.identity.cognitoIdentityId;
+  // let cognitoIdentityId =
+  //   req.apiGateway.event.requestContext.identity.cognitoIdentityId;
   let date = new Date();
 
   riskCalculation
-    .getWeeklyRisk(cognitoIdentityId, date)
+    .getWeeklyRisk("ap-south-1:de248c54-4d9b-4bc1-92d3-3c2eee10ea43", date)
     .then((results) => {
       res.send(results);
     })
@@ -52,6 +63,9 @@ app.get("/risk/getWeeklyRisk", async (req, res) => {
 });
 
 app.get("/risk/getPreviousNextDayRisk/:teamId/:date", async (req, res) => {
+  // /:teamId/:date req.params
+  // let teamId = 1;
+  // let prevDate = new Date(date.setDate(18));
   riskCalculation
     .getPreviousNextDayRisk(req.params)
     .then((results) => {
@@ -63,6 +77,10 @@ app.get("/risk/getPreviousNextDayRisk/:teamId/:date", async (req, res) => {
 app.get(
   "/risk/getPreviousNextWeekRisk/:teamId/:startDateOfWeek/:endDateOfWeek",
   async (req, res) => {
+   // /:teamId/:startDateOfWeek/:endDateOfWeek req.params
+  //  let teamId = 1;
+  //  let prevstartDate = new Date(date.setDate(8));
+  //  let prevendDate = new Date(date.setDate(14));
     riskCalculation
       .getPreviousNextWeekRisk(req.params)
       .then((results) => {
@@ -73,30 +91,24 @@ app.get(
 );
 
 app.get("/team/getTeamInfo", async (req, res) => {
-  let cognitoIdentityId =
-    req.apiGateway.event.requestContext.identity.cognitoIdentityId;
+  // let cognitoIdentityId =
+  //   req.apiGateway.event.requestContext.identity.cognitoIdentityId;
 
   dbService
-    .getTeamsInfo(cognitoIdentityId)
+    .getTeamsInfo("ap-south-1:de248c54-4d9b-4bc1-92d3-3c2eee10ea43")
     .then((results) => {
       res.send(results);
     })
     .catch((error) => res.send(error));
 });
 
-// app.get("/team/test", async (req, res) => {
-//   //  let employeeId= [22, 23, 24, 25];
-//   let date = new Date();
-
-//   // let teamId = [1, 2, 5];
-//   // riskCalculation.getWeeklyRisk(date)
-//   riskCalculation
-//     .getDayRisk("ap-south-1:de248c54-4d9b-4bc1-92d3-3c2eee10ea43", date)
-//     .then((results) => {
-//       res.send(results);
-//     })
-//     .catch((error) => res.send(error));
-// });
+app.get("/team/getTeamDetails/:teamId", async (req, res) => {
+ dbService.getTeamCompleteInfo(req.params)
+    .then((results) => {
+      res.send(results);
+    })
+    .catch((error) => res.send(error));
+});
 
 app.listen(2000, () => console.log("listening to port 2000"));
 

@@ -32,5 +32,10 @@ functions:
           method: ANY
           cors: true
           authorizer: aws_iam
+      - http:
+          path: /leave/addLeave
+          method: POST
+          cors: true
+          authorizer: aws_iam
           
           

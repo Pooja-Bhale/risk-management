@@ -1,11 +1,17 @@
 import React, { Fragment, useState, useEffect } from "react";
 import API from "@aws-amplify/api";
-// import "./TeamsInfo.css";
+import * as FaIcons from "react-icons/fa";
+import AddLeave from "./AddLeave"
+
+// import TeamDetails from "./TeamDetails";
 
 var TeamsInfo = () => {
   var [allTeams, setTeams] = useState([]);
   var [dayRisk, setDayRisk] = useState([]);
+  // var [weeklyRisk, setWeeklyRisk] = useState([]);
+  // var [teamDetail, setTeamDetail] = useState([]);
 
+  console.log("initial allTeams", allTeams)
 
   var getTeams = async () => {
     try {
@@ -14,29 +20,45 @@ var TeamsInfo = () => {
     } catch (err) {
       console.error(err.message);
     }
-    console.log(allTeams)
   };
 
-   var showTodayRisk = async ()=> {
+  var showTodayRisk = async () => {
     var todayComp = document.getElementById("todayRiskComp");
     var weeklyComp = document.getElementById("weeklyRiskComp");
+    // for (let index = 0; index < allTeams.length; index++) {
+    //   var todayRiskData = "todayRiskDataComp" + allTeams[index].teamId;
+    //   console.log("todayRiskData", todayRiskData)
+    // }
+    // var todayDataComp = document.getElementById(todayRiskData);
 
-    if (todayComp.style.display === "none") {
+    if (
+      todayComp.style.display === "none" 
+      //&& todayDataComp.style.display === "none"
+    ) {
       todayComp.style.display = "block";
+      // todayDataComp.style.display = "block";
       weeklyComp.style.display = "none";
     } else {
       todayComp.style.display = "none";
+      // todayDataComp.style.display = "none";
       weeklyComp.style.display = "none";
     }
     try {
       let response = await API.get("riskmanagement", "/risk/getDayRisk");
       setDayRisk(response);
+
+      let teamsDataWithRisk = new Map();
+      for (let index = 0; index < allTeams.length; index++) {
+        let dayCount = { dayCount: 0 };
+        let allTeamsDayRisk = Object.assign(allTeams[index], dayRisk[index], dayCount);
+        teamsDataWithRisk.set(allTeams[index].teamId, allTeamsDayRisk);
+      }
+      console.log("after today allTeams", allTeams)
+
     } catch (err) {
       console.error(err.message);
     }
-    console.log(dayRisk)
-
-  }
+  };
 
   async function showWeeklyRisk() {
     var weeklyComp = document.getElementById("weeklyRiskComp");
@@ -49,6 +71,21 @@ var TeamsInfo = () => {
       weeklyComp.style.display = "none";
       todayComp.style.display = "none";
     }
+    // try {
+    //   // let response = await API.get("riskmanagement", "/risk/getWeeklyRisk");
+    //   // setWeeklyRisk(response);
+
+    //   // let teamsDataWithRisk = new Map();
+    //   // for (let index = 0; index < allTeams.length; index++) {
+    //   //   let dayCount = { dayCount: 0 };
+    //   //   let allTeamsWeeklyRisk = Object.assign(allTeams[index], weeklyRisk.weeklyRisk[index], dayCount);
+    //   //   teamsDataWithRisk.set(allTeams[index].teamId, allTeamsWeeklyRisk);
+    //   // }
+    //   // console.log("after weekly allTeams", allTeams)
+
+    // } catch (err) {
+    //   console.error(err.message);
+    // }
   }
 
   useEffect(() => {
@@ -63,12 +100,13 @@ var TeamsInfo = () => {
             <h4 Style="margin-top:30px; margin-bottom:30px; ">All Teams </h4>
           </div>
           <div class="col">
-            <button
+            <AddLeave />
+            {/* <button
               Style="margin-top:30px; margin-bottom:30px;"
               className="btn btn-success float-right"
             >
               + Add Leave
-            </button>
+            </button> */}
 
             <button
               Style="margin-top:30px; margin-bottom:30px; margin-right:10px;"
@@ -110,8 +148,21 @@ var TeamsInfo = () => {
         <tbody>
           {allTeams.map((team) => (
             <tr key={team.teamId}>
-              <td>{team.teamName}</td>
-              <td></td>
+              <td >
+                <a href={'/TeamDetails/'+team.teamId} Style="color:black">{team.teamName}</a>
+              </td>
+              <td>
+                <div
+                  // id={"todayRiskDataComp" + team.teamId}
+                  // Style="display:none;"
+                >
+                  {team.riskIs ? (
+                    <FaIcons.FaSquare size={20} style={{ fill: "red" }} />
+                  ) : (
+                    <FaIcons.FaSquare size={20} style={{ fill: "green" }} />
+                  )}
+                </div>
+              </td>
               <td>
                 <button className="btn btn-primary">Calendar</button>
               </td>

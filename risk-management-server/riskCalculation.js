@@ -56,11 +56,19 @@ async function getDayRisk(cognitoId, date) {
   ) {
     if (percentOfUnavailableEmployeeArray[index] >= teamThresholdArray[index]) {
       let risk = true;
-      riskArray.push({["teamId"]: teamIdArray[index], ["riskIs"]: risk});
+      riskArray.push({
+        ["teamId"]: teamIdArray[index],
+        ["date"]: formattedDate,
+        ["riskIs"]: risk,
+      });
       console.log(risk);
     } else {
       let risk = false;
-      riskArray.push({["teamId"]: teamIdArray[index], ["riskIs"]: risk});
+      riskArray.push({
+        ["teamId"]: teamIdArray[index],
+        ["date"]: formattedDate,
+        ["riskIs"]: risk,
+      });
     }
   }
 
@@ -69,6 +77,7 @@ async function getDayRisk(cognitoId, date) {
 
 async function getPreviousNextDayRisk(teamId, date) {
   let teamInfo = await dbService.getTeamDetails(teamId.teamId);
+  // let teamInfo = await dbService.getTeamDetails(teamId);
   let teamInfoArray = new Array(teamInfo);
 
   let teamThresholdArray = teamInfoArray.map(function (teamThreshold) {
@@ -77,7 +86,7 @@ async function getPreviousNextDayRisk(teamId, date) {
 
   let teamIdArray = new Array();
   teamIdArray.push(teamId.teamId);
-
+  // teamIdArray.push(teamId);
   let TeamMemberCount = await dbService.getTeamMemberCount(teamIdArray);
   let employeeOnLeaveCountArray = new Array();
 
@@ -124,15 +133,15 @@ async function getPreviousNextDayRisk(teamId, date) {
   ) {
     if (percentOfUnavailableEmployeeArray[index] >= teamThresholdArray[index]) {
       let risk = true;
-      riskArray.push(risk);
+      riskArray.push({ ["teamId"]: teamIdArray[index], [formattedDate]: risk });
     } else {
       let risk = false;
-      riskArray.push(risk);
+      riskArray.push({ ["teamId"]: teamIdArray[index], [formattedDate]: risk });
     }
   }
-  const result = { [formattedDate]: riskArray };
+  // const result = { ["teamID"]:, [formattedDate]: riskArray };
 
-  return result;
+  return riskArray;
 }
 
 async function getWeeklyRisk(cognitoId, date) {
@@ -158,7 +167,29 @@ async function getWeeklyRisk(cognitoId, date) {
     weeklyRiskArray.push(weeklyRisk);
   }
 
-  return weeklyRiskArray;
+  var allTeamsWeeklyRisk = {};
+  for (var index = 0; index < weeklyRiskArray.length; index++) {
+    var week = weeklyRiskArray[index];
+
+    for (var i = 0; i < week.length; i++) {
+      var id = week[i].teamId;
+      var risk = week[i].riskIs;
+      var date = week[i].date;
+      var hasId = allTeamsWeeklyRisk.hasOwnProperty(id);
+
+      if (!hasId) {
+        allTeamsWeeklyRisk = {
+          ...allTeamsWeeklyRisk,
+          [id]: { date: [], weekRisk: [] },
+        };
+      }
+
+      allTeamsWeeklyRisk[id].date.push(date);
+      allTeamsWeeklyRisk[id].weekRisk.push(risk);
+    }
+  }
+
+  return allTeamsWeeklyRisk;
 }
 
 async function getPreviousNextWeekRisk(teamId, startDateOfWeek, endDateOfWeek) {

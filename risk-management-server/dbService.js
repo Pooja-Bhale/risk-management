@@ -53,7 +53,7 @@ function getEmployeeId(cognitoId) {
 function getEmployeeDetails(employeeId) {
   return new Promise(async (resolve, reject) => {
     await Employee.findOne({
-      attributes: ["firstName", "lastName"],
+      attributes: ["employeeId","firstName", "lastName"],
       where: {
         employeeId: employeeId,
       },
@@ -209,7 +209,6 @@ function addLeave(value) {
       employeeId: value.employeeId,
       startDate: value.startDate,
       endDate: value.endDate,
-      days: value.days,
       reason: value.reason,
       status: value.status,
     })
@@ -238,6 +237,25 @@ async function getTeamsInfo(cognitoId) {
   return teamInfo;
 }
 
+async function getTeamCompleteInfo(teamId)
+{
+  let team =  new Array(await getTeamDetails(teamId.teamId));
+  let teamMember = await getEmployeeIdOfTeamMember(teamId.teamId);
+  let employeeIdArray = teamMember.map(function (employeeId) {
+    return employeeId["employeeId"];
+  });
+
+  let employeeDetailskArray = new Array();
+  for (let index = 0; index < employeeIdArray.length; index++) {
+    let employeeDetails = await getEmployeeDetails(employeeIdArray[index])
+    employeeDetailskArray.push(employeeDetails);
+
+  }
+  
+  let result = team.concat(employeeDetailskArray);
+  return result;
+}
+
 module.exports = {
   addEmployee,
   getEmployeeId,
@@ -249,4 +267,5 @@ module.exports = {
   getEmployeeOnLeave,
   addLeave,
   getTeamsInfo,
+  getTeamCompleteInfo
 };
