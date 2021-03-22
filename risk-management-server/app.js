@@ -50,12 +50,12 @@ app.get("/risk/getDayRisk", async (req, res) => {
 });
 
 app.get("/risk/getWeeklyRisk", async (req, res) => {
-  // let cognitoIdentityId =
-  //   req.apiGateway.event.requestContext.identity.cognitoIdentityId;
+  let cognitoIdentityId =
+    req.apiGateway.event.requestContext.identity.cognitoIdentityId;
   let date = new Date();
 
   riskCalculation
-    .getWeeklyRisk("ap-south-1:de248c54-4d9b-4bc1-92d3-3c2eee10ea43", date)
+    .getWeeklyRisk(cognitoIdentityId, date)
     .then((results) => {
       res.send(results);
     })
@@ -91,11 +91,11 @@ app.get(
 );
 
 app.get("/team/getTeamInfo", async (req, res) => {
-  // let cognitoIdentityId =
-  //   req.apiGateway.event.requestContext.identity.cognitoIdentityId;
+  let cognitoIdentityId =
+    req.apiGateway.event.requestContext.identity.cognitoIdentityId;
 
   dbService
-    .getTeamsInfo("ap-south-1:de248c54-4d9b-4bc1-92d3-3c2eee10ea43")
+    .getTeamsInfo(cognitoIdentityId)
     .then((results) => {
       res.send(results);
     })

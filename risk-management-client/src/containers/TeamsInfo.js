@@ -1,17 +1,58 @@
 import React, { Fragment, useState, useEffect } from "react";
 import API from "@aws-amplify/api";
 import * as FaIcons from "react-icons/fa";
-import AddLeave from "./AddLeave"
+import AddLeave from "./AddLeave";
 
 // import TeamDetails from "./TeamDetails";
 
 var TeamsInfo = () => {
   var [allTeams, setTeams] = useState([]);
   var [dayRisk, setDayRisk] = useState([]);
-  // var [weeklyRisk, setWeeklyRisk] = useState([]);
-  // var [teamDetail, setTeamDetail] = useState([]);
+  var [teamData, setTeamData] = useState({});
+  var [weeklyRisk, setWeeklyRisk] = useState([]);
+  var [riskFor, setRiskFor] = useState(new Map());
 
-  console.log("initial allTeams", allTeams)
+  for (let i = 0; i < allTeams.length; i++) {
+    let id = allTeams[i].teamId;
+    let name = allTeams[i].teamName;
+
+    let hasId = teamData.hasOwnProperty(id);
+    if (!hasId) {
+      teamData = {
+        ...teamData,
+        [id]: { teamId: 0, teamName: "", day: null, weekRisk: null },
+      };
+    }
+    teamData[id].teamId = id;
+    teamData[id].teamName = name;
+  }
+
+  // let riskFor = new Map();
+  let today = new Date();
+  let date = new Date();
+
+  let teamDataKeys = Object.keys(teamData);
+
+  let startDay =
+    date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1);
+  let startDateOfWeek = new Date(date.setDate(startDay));
+
+  let lastday = date.getDate() - (date.getDay() - 1) + 6;
+  let endDateOfWeek = new Date(date.setDate(lastday));
+
+  for (var i = 0; i < allTeams.length; i++) {
+    let id = allTeams[i].teamId;
+    let value = {
+      teamId: id,
+      daycount: 0,
+      weekCount: 0,
+      currentDate: today,
+      startDateOfWeek: startDateOfWeek,
+      endDateOfWeek: endDateOfWeek,
+    };
+
+    riskFor.set(id, value);
+  }
 
   var getTeams = async () => {
     try {
@@ -21,6 +62,8 @@ var TeamsInfo = () => {
       console.error(err.message);
     }
   };
+
+  console.log("map", riskFor);
 
   var showTodayRisk = async () => {
     var todayComp = document.getElementById("todayRiskComp");
@@ -32,7 +75,7 @@ var TeamsInfo = () => {
     // var todayDataComp = document.getElementById(todayRiskData);
 
     if (
-      todayComp.style.display === "none" 
+      todayComp.style.display === "none"
       //&& todayDataComp.style.display === "none"
     ) {
       todayComp.style.display = "block";
@@ -44,21 +87,26 @@ var TeamsInfo = () => {
       weeklyComp.style.display = "none";
     }
     try {
-      let response = await API.get("riskmanagement", "/risk/getDayRisk");
-      setDayRisk(response);
-
-      let teamsDataWithRisk = new Map();
-      for (let index = 0; index < allTeams.length; index++) {
-        let dayCount = { dayCount: 0 };
-        let allTeamsDayRisk = Object.assign(allTeams[index], dayRisk[index], dayCount);
-        teamsDataWithRisk.set(allTeams[index].teamId, allTeamsDayRisk);
-      }
-      console.log("after today allTeams", allTeams)
-
+      await API.get("riskmanagement", "/risk/getDayRisk").then((response) => {
+        setDayRisk(response);
+        // console.log("daay risk", dayRisk)
+        for (let index = 0; index < dayRisk.length; index++) {
+          console.log("hello day risk= ", dayRisk.length);
+          let id = teamDataKeys[index];
+          let risk = dayRisk[index].riskIs;
+          teamData[id].day = risk;
+          setTeamData(teamData);
+        }
+      });
     } catch (err) {
       console.error(err.message);
     }
   };
+
+  // var showPreviousDayRisk = async (teamId) => {
+  //   riskFor.get()
+
+  // }
 
   async function showWeeklyRisk() {
     var weeklyComp = document.getElementById("weeklyRiskComp");
@@ -71,21 +119,23 @@ var TeamsInfo = () => {
       weeklyComp.style.display = "none";
       todayComp.style.display = "none";
     }
-    // try {
-    //   // let response = await API.get("riskmanagement", "/risk/getWeeklyRisk");
-    //   // setWeeklyRisk(response);
+    try {
+      await API.get("riskmanagement", "/risk/getWeeklyRisk").then(
+        (response) => {
+          setWeeklyRisk(response);
+          let weeklyRiskKeys = Object.keys(weeklyRisk);
 
-    //   // let teamsDataWithRisk = new Map();
-    //   // for (let index = 0; index < allTeams.length; index++) {
-    //   //   let dayCount = { dayCount: 0 };
-    //   //   let allTeamsWeeklyRisk = Object.assign(allTeams[index], weeklyRisk.weeklyRisk[index], dayCount);
-    //   //   teamsDataWithRisk.set(allTeams[index].teamId, allTeamsWeeklyRisk);
-    //   // }
-    //   // console.log("after weekly allTeams", allTeams)
-
-    // } catch (err) {
-    //   console.error(err.message);
-    // }
+          for (let index = 0; index < weeklyRiskKeys.length; index++) {
+            let id = weeklyRiskKeys[index];
+            let risk = weeklyRisk[id].weekRisk;
+            teamData[id].weekRisk = risk;
+            setTeamData(teamData);
+          }
+        }
+      );
+    } catch (err) {
+      console.error(err.message);
+    }
   }
 
   useEffect(() => {
@@ -93,7 +143,7 @@ var TeamsInfo = () => {
   }, []);
 
   return (
-    <Fragment>
+    <React.Fragment>
       <div class="container">
         <div class="row">
           <div class="col">
@@ -101,13 +151,6 @@ var TeamsInfo = () => {
           </div>
           <div class="col">
             <AddLeave />
-            {/* <button
-              Style="margin-top:30px; margin-bottom:30px;"
-              className="btn btn-success float-right"
-            >
-              + Add Leave
-            </button> */}
-
             <button
               Style="margin-top:30px; margin-bottom:30px; margin-right:10px;"
               className="btn btn-success float-right"
@@ -146,31 +189,61 @@ var TeamsInfo = () => {
           </tr>
         </thead>
         <tbody>
-          {allTeams.map((team) => (
-            <tr key={team.teamId}>
-              <td >
-                <a href={'/TeamDetails/'+team.teamId} Style="color:black">{team.teamName}</a>
-              </td>
-              <td>
-                <div
+          {teamDataKeys.map((team) => {
+            return (
+              <tr key={team}>
+                <td>
+                  <a
+                    href={"/TeamDetails/" + teamData[team].teamId}
+                    Style="color:black"
+                  >
+                    {teamData[team].teamName}
+                    {}
+                  </a>
+                </td>
+                <td>
+                  <div
                   // id={"todayRiskDataComp" + team.teamId}
                   // Style="display:none;"
-                >
-                  {team.riskIs ? (
-                    <FaIcons.FaSquare size={20} style={{ fill: "red" }} />
-                  ) : (
-                    <FaIcons.FaSquare size={20} style={{ fill: "green" }} />
-                  )}
-                </div>
-              </td>
-              <td>
-                <button className="btn btn-primary">Calendar</button>
-              </td>
-            </tr>
-          ))}
+                  >
+                    {teamData[team].day === true ? (
+                      <div>
+                        <FaIcons.FaChevronLeft />{" "}
+                        <FaIcons.FaSquare size={20} style={{ fill: "red" }} />
+                        <FaIcons.FaChevronRight />{" "}
+                      </div>
+                    ) : (
+                      <div>
+                        <FaIcons.FaChevronLeft />{" "}
+                        <FaIcons.FaSquare size={20} style={{ fill: "green" }} />{" "}
+                        <FaIcons.FaChevronRight />{" "}
+                      </div>
+                    )}
+                  </div>
+                </td>
+                <td>
+                  <div>
+                    {teamData[team].weekRisk.map((weekrisk) => {
+                      // eslint-disable-next-line no-lone-blocks
+                      {
+                        weekrisk === true ? (
+                          <FaIcons.FaSquare size={20} style={{ fill: "red" }} />
+                        ) : (
+                          <FaIcons.FaSquare size={20} style={{ fill: "green" }} />
+                        )
+                      }
+                    })}
+                  </div>
+                </td>
+                <td>
+                  <button className="btn btn-primary">Calendar</button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
-    </Fragment>
+    </React.Fragment>
   );
 };
 
