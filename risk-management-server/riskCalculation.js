@@ -76,6 +76,7 @@ async function getDayRisk(cognitoId, date) {
 }
 
 async function getPreviousNextDayRisk(teamId, date) {
+
   let teamInfo = await dbService.getTeamDetails(teamId.teamId);
   // let teamInfo = await dbService.getTeamDetails(teamId);
   let teamInfoArray = new Array(teamInfo);
@@ -133,10 +134,10 @@ async function getPreviousNextDayRisk(teamId, date) {
   ) {
     if (percentOfUnavailableEmployeeArray[index] >= teamThresholdArray[index]) {
       let risk = true;
-      riskArray.push({ ["teamId"]: teamIdArray[index], [formattedDate]: risk });
+      riskArray.push({ ["teamId"]: teamIdArray[index], ["date"]:formattedDate , ["riskIs"]: risk });
     } else {
       let risk = false;
-      riskArray.push({ ["teamId"]: teamIdArray[index], [formattedDate]: risk });
+      riskArray.push({ ["teamId"]: teamIdArray[index],  ["date"]:formattedDate , ["riskIs"]: risk });
     }
   }
   // const result = { ["teamID"]:, [formattedDate]: riskArray };

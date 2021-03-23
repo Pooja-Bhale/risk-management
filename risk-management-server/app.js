@@ -62,10 +62,13 @@ app.get("/risk/getWeeklyRisk", async (req, res) => {
     .catch((error) => res.send(error));
 });
 
-app.get("/risk/getPreviousNextDayRisk/:teamId/:date", async (req, res) => {
+app.get("/risk/getPreviousNextDayRisk /:teamId/:date", async (req, res) => {
   // /:teamId/:date req.params
   // let teamId = 1;
-  // let prevDate = new Date(date.setDate(18));
+  // let date = new Date();
+  // let prevDate = new Date(date);
+  // console.log("api start")
+  //   prevDate.setDate(prevDate.getDate() - 1)
   riskCalculation
     .getPreviousNextDayRisk(req.params)
     .then((results) => {

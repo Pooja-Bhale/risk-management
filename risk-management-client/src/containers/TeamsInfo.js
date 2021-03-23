@@ -44,7 +44,7 @@ var TeamsInfo = () => {
     let id = allTeams[i].teamId;
     let value = {
       teamId: id,
-      daycount: 0,
+      // daycount: 0,
       weekCount: 0,
       currentDate: today,
       startDateOfWeek: startDateOfWeek,
@@ -64,6 +64,7 @@ var TeamsInfo = () => {
   };
 
   var showTodayRisk = async () => {
+    console.log("inside fun")
     var todayComp = document.getElementById("todayRiskComp");
     var weeklyComp = document.getElementById("weeklyRiskComp");
     // for (let index = 0; index < allTeams.length; index++) {
@@ -84,28 +85,60 @@ var TeamsInfo = () => {
       // todayDataComp.style.display = "none";
       weeklyComp.style.display = "none";
     }
+    // 
     try {
       await API.get("riskmanagement", "/risk/getDayRisk").then((response) => {
         setDayRisk(response);
+        let tempTeamDataMap = {...teamData};
         for (let index = 0; index < dayRisk.length; index++) {
+          console.log("inside for loop")
           let id = teamDataKeys[index];
           let risk = dayRisk[index].riskIs;
-          teamData[id].day = risk;
-          setTeamData(teamData);
-          console.log(teamData)
+          tempTeamDataMap[id].day = risk;
+          // let teamDataTemp = teamData[id];
+          // teamData[id].day = risk;
+          // teamDataTemp.day = risk;
+          // console.log("id, teamDataTemp", id, teamDataTemp)
+          // tempTeamDataMap.set(id, teamDataTemp)
+          // setState(state => ({...state, [`item-${i}`]: item}));
+          // setTeamData(teamData);
+         // setTeamData(teamData => ({...teamData, [id]: teamDataTemp}));
+
         }
+        console.log("outside for loop")
+        console.log("tempTeamDataMap", tempTeamDataMap);
+        setTeamData(tempTeamDataMap);
+
       });
     } catch (err) {
       console.error(err.message);
     }
   };
+  console.log("team dataa xxxx",teamData)
+
 
   var showPreviousDayRisk = async (teamId) => {
     let riskMap = riskFor.get(teamId);
-    let dayCount = riskMap.daycount - 1;
-    riskFor.get(teamId).daycount = dayCount;
+    let date = riskMap.currentDate;
+    let prevDate = new Date(date);
+    prevDate.setDate(prevDate.getDate() - 1)
+    riskFor.get(teamId).currentDate = prevDate;
     setRiskFor(riskFor);
+    console.log("riskfor map", riskFor)
+    let dateIs = riskFor.get(teamId).currentDate;
+    console.log("date is", dateIs)
+    // try {
+    //   await API.get("riskmanagement", `/risk/getPreviousNextDayRisk/${teamId}/${dateIs}`).then((response) => {
+    //       teamData[teamId].day = response;
+    //       setTeamData(teamData);
+    //       console.log("teamdata in fun",teamData)
+    //   });
+    // } catch (err) {
+    //   console.error(err.message);
+    // }
+
   };
+  // console.log("teamdata our of fun",teamData)
 
   async function showWeeklyRisk() {
     var weeklyComp = document.getElementById("weeklyRiskComp");
@@ -160,7 +193,7 @@ var TeamsInfo = () => {
             <button
               Style="margin-top:30px; margin-bottom:30px; margin-right:10px;"
               className="btn btn-success float-right"
-              onClick={showTodayRisk}
+              onClick={async () => {await showTodayRisk();}}
             >
               Today
             </button>
