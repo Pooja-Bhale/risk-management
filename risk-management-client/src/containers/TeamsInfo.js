@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import API from "@aws-amplify/api";
 import * as FaIcons from "react-icons/fa";
 import AddLeave from "./AddLeave";
@@ -20,7 +20,7 @@ var TeamsInfo = () => {
     if (!hasId) {
       teamData = {
         ...teamData,
-        [id]: { teamId: 0, teamName: "", day: null, weekRisk: null },
+        [id]: { teamId: 0, teamName: "", day: null, weekRisk: [] },
       };
     }
     teamData[id].teamId = id;
@@ -63,8 +63,6 @@ var TeamsInfo = () => {
     }
   };
 
-  console.log("map", riskFor);
-
   var showTodayRisk = async () => {
     var todayComp = document.getElementById("todayRiskComp");
     var weeklyComp = document.getElementById("weeklyRiskComp");
@@ -89,13 +87,12 @@ var TeamsInfo = () => {
     try {
       await API.get("riskmanagement", "/risk/getDayRisk").then((response) => {
         setDayRisk(response);
-        // console.log("daay risk", dayRisk)
         for (let index = 0; index < dayRisk.length; index++) {
-          console.log("hello day risk= ", dayRisk.length);
           let id = teamDataKeys[index];
           let risk = dayRisk[index].riskIs;
           teamData[id].day = risk;
           setTeamData(teamData);
+          console.log(teamData)
         }
       });
     } catch (err) {
@@ -103,10 +100,12 @@ var TeamsInfo = () => {
     }
   };
 
-  // var showPreviousDayRisk = async (teamId) => {
-  //   riskFor.get()
-
-  // }
+  var showPreviousDayRisk = async (teamId) => {
+    let riskMap = riskFor.get(teamId);
+    let dayCount = riskMap.daycount - 1;
+    riskFor.get(teamId).daycount = dayCount;
+    setRiskFor(riskFor);
+  };
 
   async function showWeeklyRisk() {
     var weeklyComp = document.getElementById("weeklyRiskComp");
@@ -168,7 +167,6 @@ var TeamsInfo = () => {
           </div>
         </div>
       </div>
-
       <table className="table">
         <thead>
           <tr>
@@ -183,6 +181,7 @@ var TeamsInfo = () => {
                 Weekly
               </p>
             </th>
+            <th Style="margin-right:300px">tessthead</th>
             <th>
               <p>View calendar</p>
             </th>
@@ -203,36 +202,54 @@ var TeamsInfo = () => {
                 </td>
                 <td>
                   <div
-                  // id={"todayRiskDataComp" + team.teamId}
-                  // Style="display:none;"
+                  // id={​​​​​​​​"todayRiskDataComp" + team.teamId}​​​​​​​​
                   >
                     {teamData[team].day === true ? (
                       <div>
-                        <FaIcons.FaChevronLeft />{" "}
+                        <FaIcons.FaChevronLeft
+                          onClick={() => {
+                            showPreviousDayRisk(teamData[team].teamId);
+                          }}
+                        />{" "}
                         <FaIcons.FaSquare size={20} style={{ fill: "red" }} />
                         <FaIcons.FaChevronRight />{" "}
                       </div>
                     ) : (
                       <div>
-                        <FaIcons.FaChevronLeft />{" "}
+                        <FaIcons.FaChevronLeft
+                          onClick={() => {
+                            showPreviousDayRisk(teamData[team].teamId);
+                          }}
+                        />{" "}
                         <FaIcons.FaSquare size={20} style={{ fill: "green" }} />{" "}
                         <FaIcons.FaChevronRight />{" "}
                       </div>
                     )}
+                    ​​​​​​​​
                   </div>
                 </td>
                 <td>
-                  <div>
+                  <div Style="margin-right:300px">
                     {teamData[team].weekRisk.map((weekrisk) => {
                       // eslint-disable-next-line no-lone-blocks
-                      {
-                        weekrisk === true ? (
-                          <FaIcons.FaSquare size={20} style={{ fill: "red" }} />
-                        ) : (
-                          <FaIcons.FaSquare size={20} style={{ fill: "green" }} />
-                        )
-                      }
+                      return (
+                        <div className="float-right">
+                          {weekrisk === true ? (
+                            <FaIcons.FaSquare
+                              size={20}
+                              style={{ fill: "red" }}
+                            />
+                          ) : (
+                            <FaIcons.FaSquare
+                              size={20}
+                              style={{ fill: "green" }}
+                            />
+                          )}
+                          ​​​​​​​​
+                        </div>
+                      );
                     })}
+                    ​​​​​​​​
                   </div>
                 </td>
                 <td>
@@ -241,6 +258,7 @@ var TeamsInfo = () => {
               </tr>
             );
           })}
+          ​​​​​​​​
         </tbody>
       </table>
     </React.Fragment>
