@@ -162,7 +162,7 @@ async function getWeeklyRisk(cognitoId, date) {
   let endDateOfWeek = new Date(date.setDate(lastday));
 
   for (
-    var d = startDateOfWeek;
+    let d = startDateOfWeek;
     d <= endDateOfWeek;
     d.setDate(d.getDate() + 1)
   ) {
@@ -171,19 +171,19 @@ async function getWeeklyRisk(cognitoId, date) {
 
   let weeklyRiskArray = new Array();
   for (let index = 0; index < weekDaysDateArray.length; index++) {
-    var weeklyRisk = await getDayRisk(cognitoId, weekDaysDateArray[index]);
+    let weeklyRisk = await getDayRisk(cognitoId, weekDaysDateArray[index]);
     weeklyRiskArray.push(weeklyRisk);
   }
 
-  var allTeamsWeeklyRisk = {};
-  for (var index = 0; index < weeklyRiskArray.length; index++) {
-    var week = weeklyRiskArray[index];
+  let allTeamsWeeklyRisk = {};
+  for (let index = 0; index < weeklyRiskArray.length; index++) {
+    let week = weeklyRiskArray[index];
 
-    for (var i = 0; i < week.length; i++) {
-      var id = week[i].teamId;
-      var risk = week[i].riskIs;
-      var date = week[i].date;
-      var hasId = allTeamsWeeklyRisk.hasOwnProperty(id);
+    for (let i = 0; i < week.length; i++) {
+      let id = week[i].teamId;
+      let risk = week[i].riskIs;
+      let date = week[i].date;
+      let hasId = allTeamsWeeklyRisk.hasOwnProperty(id);
 
       if (!hasId) {
         allTeamsWeeklyRisk = {
@@ -202,15 +202,19 @@ async function getWeeklyRisk(cognitoId, date) {
 
 async function getPreviousNextWeekRisk(teamId, startDateOfWeek, endDateOfWeek) {
   let weekDaysDateArray = new Array();
-  console.log()
+  console.log("teamId, startDateOfWeek, endDateOfWeek", teamId, startDateOfWeek, endDateOfWeek)
 
+  let start = new Date(startDateOfWeek)
+  let end = new Date(endDateOfWeek)
+  console.log("datessssssssssss", start, end)
   for (
-    var d = startDateOfWeek;
-    d <= endDateOfWeek;
+    let d = start;
+    d <= end;
     d.setDate(d.getDate() + 1)
   ) {
     weekDaysDateArray.push(new Date(d));
   }
+  console.log("weekDaysDateArray", weekDaysDateArray)
 
   let weeklyRiskArray = new Array();
   for (let index = 0; index < weekDaysDateArray.length; index++) {
@@ -220,17 +224,18 @@ async function getPreviousNextWeekRisk(teamId, startDateOfWeek, endDateOfWeek) {
     );
     weeklyRiskArray.push(weeklyRisk);
   }
+  console.log("weeklyRiskArray", weeklyRiskArray)
 
 
-  var teamWeeklyRisk = {};
-  for (var index = 0; index < weeklyRiskArray.length; index++) {
-    var week = weeklyRiskArray[index];
+  let teamWeeklyRisk = {};
+  for (let index = 0; index < weeklyRiskArray.length; index++) {
+    let week = weeklyRiskArray[index];
 
-    for (var i = 0; i < week.length; i++) {
-      var id = week[i].teamId;
-      var risk = week[i].riskIs;
-      var date = week[i].date;
-      var hasId = teamWeeklyRisk.hasOwnProperty(id);
+    for (let i = 0; i < week.length; i++) {
+      let id = week[i].teamId;
+      let risk = week[i].riskIs;
+      let date = week[i].date;
+      let hasId = teamWeeklyRisk.hasOwnProperty(id);
 
       if (!hasId) {
         teamWeeklyRisk = {
@@ -243,6 +248,7 @@ async function getPreviousNextWeekRisk(teamId, startDateOfWeek, endDateOfWeek) {
       teamWeeklyRisk[id].weekRisk.push(risk);
     }
   }
+  console.log
 
   return teamWeeklyRisk;
 }

@@ -80,11 +80,11 @@ app.get("/risk/getPreviousNextDayRisk/:teamId/:date", async (req, res) => {
 app.get(
   "/risk/getPreviousNextWeekRisk/:teamId/:startDateOfWeek/:endDateOfWeek",
   async (req, res) => {
-   // /:teamId/:startDateOfWeek/:endDateOfWeek req.params
+  //  /:teamId/:startDateOfWeek/:endDateOfWeek req.params.teamId, req.params.startDateOfWeek, req.params.endDateOfWeek
   //  let teamId = 1;
   //  let date = new Date();
-  //  let prevstartDate = new Date(date.setDate(8));
-  //  let prevendDate = new Date(date.setDate(14));
+  //  let prevstartDate = new Date(date.setDate(8)).toISOString();
+  //  let prevendDate = new Date(date.setDate(14)).toISOString();
     riskCalculation
       .getPreviousNextWeekRisk(req.params.teamId, req.params.startDateOfWeek, req.params.endDateOfWeek)
       .then((results) => {
