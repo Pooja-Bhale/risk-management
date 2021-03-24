@@ -62,7 +62,7 @@ app.get("/risk/getWeeklyRisk", async (req, res) => {
     .catch((error) => res.send(error));
 });
 
-app.get("/risk/getPreviousNextDayRisk /:teamId/:date", async (req, res) => {
+app.get("/risk/getPreviousNextDayRisk/:teamId/:date", async (req, res) => {
   // /:teamId/:date req.params
   // let teamId = 1;
   // let date = new Date();
@@ -70,7 +70,7 @@ app.get("/risk/getPreviousNextDayRisk /:teamId/:date", async (req, res) => {
   // console.log("api start")
   //   prevDate.setDate(prevDate.getDate() - 1)
   riskCalculation
-    .getPreviousNextDayRisk(req.params)
+    .getPreviousNextDayRisk(req.params.teamId, req.params.date)
     .then((results) => {
       res.send(results);
     })
@@ -82,6 +82,7 @@ app.get(
   async (req, res) => {
    // /:teamId/:startDateOfWeek/:endDateOfWeek req.params
   //  let teamId = 1;
+  //  let date = new Date();
   //  let prevstartDate = new Date(date.setDate(8));
   //  let prevendDate = new Date(date.setDate(14));
     riskCalculation

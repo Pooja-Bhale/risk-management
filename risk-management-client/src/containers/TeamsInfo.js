@@ -3,8 +3,6 @@ import API from "@aws-amplify/api";
 import * as FaIcons from "react-icons/fa";
 import AddLeave from "./AddLeave";
 
-// import TeamDetails from "./TeamDetails";
-
 var TeamsInfo = () => {
   var [allTeams, setTeams] = useState([]);
   var [dayRisk, setDayRisk] = useState([]);
@@ -27,7 +25,6 @@ var TeamsInfo = () => {
     teamData[id].teamName = name;
   }
 
-  // let riskFor = new Map();
   let today = new Date();
   let date = new Date();
 
@@ -37,21 +34,20 @@ var TeamsInfo = () => {
     date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1);
   let startDateOfWeek = new Date(date.setDate(startDay));
 
-  let lastday = date.getDate() - (date.getDay() - 1) + 6;
-  let endDateOfWeek = new Date(date.setDate(lastday));
-
   for (var i = 0; i < allTeams.length; i++) {
     let id = allTeams[i].teamId;
-    let value = {
-      teamId: id,
-      // daycount: 0,
-      weekCount: 0,
-      currentDate: today,
-      startDateOfWeek: startDateOfWeek,
-      endDateOfWeek: endDateOfWeek,
-    };
-
-    riskFor.set(id, value);
+    let hasId = riskFor.hasOwnProperty(id);
+    if (!hasId) {
+      riskFor = {
+        ...riskFor,
+        [id]: {
+          teamId: 0,
+          currentDate: today,
+          startDateOfWeek: startDateOfWeek,
+        },
+      };
+    }
+    riskFor[id].teamId = id;
   }
 
   var getTeams = async () => {
@@ -63,8 +59,11 @@ var TeamsInfo = () => {
     }
   };
 
+  useEffect(() => {
+    getTeams();
+  }, []);
+
   var showTodayRisk = async () => {
-    console.log("inside fun")
     var todayComp = document.getElementById("todayRiskComp");
     var weeklyComp = document.getElementById("weeklyRiskComp");
     // for (let index = 0; index < allTeams.length; index++) {
@@ -85,60 +84,104 @@ var TeamsInfo = () => {
       // todayDataComp.style.display = "none";
       weeklyComp.style.display = "none";
     }
-    // 
+    //
     try {
       await API.get("riskmanagement", "/risk/getDayRisk").then((response) => {
         setDayRisk(response);
-        let tempTeamDataMap = {...teamData};
+        let tempTeamDataMap = { ...teamData };
         for (let index = 0; index < dayRisk.length; index++) {
-          console.log("inside for loop")
           let id = teamDataKeys[index];
           let risk = dayRisk[index].riskIs;
           tempTeamDataMap[id].day = risk;
-          // let teamDataTemp = teamData[id];
-          // teamData[id].day = risk;
-          // teamDataTemp.day = risk;
-          // console.log("id, teamDataTemp", id, teamDataTemp)
-          // tempTeamDataMap.set(id, teamDataTemp)
-          // setState(state => ({...state, [`item-${i}`]: item}));
-          // setTeamData(teamData);
-         // setTeamData(teamData => ({...teamData, [id]: teamDataTemp}));
-
         }
-        console.log("outside for loop")
-        console.log("tempTeamDataMap", tempTeamDataMap);
         setTeamData(tempTeamDataMap);
-
+        console.log("tempTeamDataMap", tempTeamDataMap)
       });
     } catch (err) {
       console.error(err.message);
     }
   };
-  console.log("team dataa xxxx",teamData)
-
+  useEffect(() => {
+    showTodayRisk();
+  }, []);
 
   var showPreviousDayRisk = async (teamId) => {
-    let riskMap = riskFor.get(teamId);
+    console.log("insidde prev ffun");
+    let tempRiskFor = { ...riskFor };
+    let riskMap = tempRiskFor[teamId];
     let date = riskMap.currentDate;
     let prevDate = new Date(date);
-    prevDate.setDate(prevDate.getDate() - 1)
-    riskFor.get(teamId).currentDate = prevDate;
-    setRiskFor(riskFor);
-    console.log("riskfor map", riskFor)
-    let dateIs = riskFor.get(teamId).currentDate;
-    console.log("date is", dateIs)
-    // try {
-    //   await API.get("riskmanagement", `/risk/getPreviousNextDayRisk/${teamId}/${dateIs}`).then((response) => {
-    //       teamData[teamId].day = response;
-    //       setTeamData(teamData);
-    //       console.log("teamdata in fun",teamData)
-    //   });
-    // } catch (err) {
-    //   console.error(err.message);
-    // }
+    prevDate.setDate(prevDate.getDate() - 1);
+    tempRiskFor[teamId].currentDate = prevDate;
+    setRiskFor(tempRiskFor);
+    console.log("prevDate", prevDate);
+    let d = new Date(prevDate),
+      month = "" + (d.getMonth() + 1),
+      day = "" + d.getDate(),
+      year = d.getFullYear();
+    if (month.length < 2) month = "0" + month;
+    if (day.length < 2) day = "0" + day;
 
+    var previousDate = [year, month, day].join("-");
+
+    try {
+      await API.get(
+        "riskmanagement",
+        `/risk/getPreviousNextDayRisk/${teamId}/${previousDate}`
+      ).then((response) => {
+        console.log("response", response)
+        let tempTeamDataMap = { ...teamData };
+        for (let index = 0; index < response.length; index++) {
+          let risk =  response[index].riskIs;
+          tempTeamDataMap[teamId].day = risk;
+        }
+        setTeamData(tempTeamDataMap);
+        console.log("after set team data", tempTeamDataMap)
+      });
+    } catch (err) {
+      console.error(err.message);
+    }
   };
-  // console.log("teamdata our of fun",teamData)
+
+  var showNextDayRisk = async (teamId) => {
+    console.log("insidde nexr ffun");
+    let tempRiskFor = { ...riskFor };
+    console.log("tempriskffor next fun", tempRiskFor);
+
+    let riskMap = tempRiskFor[teamId];
+    let date = riskMap.currentDate;
+    let nexDate = new Date(date);
+    nexDate.setDate(nexDate.getDate() + 1);
+    tempRiskFor[teamId].currentDate = nexDate;
+    setRiskFor(tempRiskFor);
+    console.log("nexDate", nexDate);
+    let d = new Date(nexDate),
+      month = "" + (d.getMonth() + 1),
+      day = "" + d.getDate(),
+      year = d.getFullYear();
+    if (month.length < 2) month = "0" + month;
+    if (day.length < 2) day = "0" + day;
+
+    var nextDate = [year, month, day].join("-");
+
+    try {
+      await API.get(
+        "riskmanagement",
+        `/risk/getPreviousNextDayRisk/${teamId}/${nextDate}`
+      ).then((response) => {
+        console.log("next fun response", response)
+        let tempTeamDataMap = { ...teamData };
+        for (let index = 0; index < response.length; index++) {
+          let risk =  response[index].riskIs;
+          tempTeamDataMap[teamId].day = risk;
+        }
+        setTeamData(tempTeamDataMap);
+        console.log("after set team data next fun", tempTeamDataMap)
+      });
+    } catch (err) {
+      console.error(err.message);
+    }
+  };
 
   async function showWeeklyRisk() {
     var weeklyComp = document.getElementById("weeklyRiskComp");
@@ -156,13 +199,13 @@ var TeamsInfo = () => {
         (response) => {
           setWeeklyRisk(response);
           let weeklyRiskKeys = Object.keys(weeklyRisk);
-
+          let tempTeamDataMap = { ...teamData };
           for (let index = 0; index < weeklyRiskKeys.length; index++) {
             let id = weeklyRiskKeys[index];
             let risk = weeklyRisk[id].weekRisk;
-            teamData[id].weekRisk = risk;
-            setTeamData(teamData);
+            tempTeamDataMap[id].weekRisk = risk;
           }
+          setTeamData(tempTeamDataMap);
         }
       );
     } catch (err) {
@@ -170,9 +213,9 @@ var TeamsInfo = () => {
     }
   }
 
-  useEffect(() => {
-    getTeams();
-  }, []);
+  // useEffect(() => {
+  //   showWeeklyRisk();
+  // }, []);
 
   return (
     <React.Fragment>
@@ -193,7 +236,7 @@ var TeamsInfo = () => {
             <button
               Style="margin-top:30px; margin-bottom:30px; margin-right:10px;"
               className="btn btn-success float-right"
-              onClick={async () => {await showTodayRisk();}}
+              onClick={showTodayRisk}
             >
               Today
             </button>
@@ -255,18 +298,21 @@ var TeamsInfo = () => {
                           }}
                         />{" "}
                         <FaIcons.FaSquare size={20} style={{ fill: "green" }} />{" "}
-                        <FaIcons.FaChevronRight />{" "}
+                        <FaIcons.FaChevronRight 
+                         onClick={() => {
+                          showNextDayRisk(teamData[team].teamId);
+                        }}/>{" "}
                       </div>
                     )}
                     ​​​​​​​​
                   </div>
                 </td>
                 <td>
-                  <div Style="margin-right:300px">
+                  <div  >
                     {teamData[team].weekRisk.map((weekrisk) => {
                       // eslint-disable-next-line no-lone-blocks
                       return (
-                        <div className="float-right">
+                        <div className="float-left ">
                           {weekrisk === true ? (
                             <FaIcons.FaSquare
                               size={20}

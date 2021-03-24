@@ -36,6 +36,7 @@ async function getDayRisk(cognitoId, date) {
       formattedDate
     );
     employeeOnLeaveCountArray.push(employeeOnLeaveCount);
+    console.log("employeeOnLeaveCount", employeeOnLeaveCountArray)
   }
 
   let percentOfUnavailableEmployeeArray = new Array();
@@ -45,6 +46,7 @@ async function getDayRisk(cognitoId, date) {
       (employeeOnLeaveCountArray[index] /
         TeamMemberCount[index].dataValues.count) *
       100;
+      console.log("percentOfUnavailableEmployee", percentOfUnavailableEmployee)
     percentOfUnavailableEmployeeArray.push(percentOfUnavailableEmployee);
   }
 
@@ -77,7 +79,10 @@ async function getDayRisk(cognitoId, date) {
 
 async function getPreviousNextDayRisk(teamId, date) {
 
-  let teamInfo = await dbService.getTeamDetails(teamId.teamId);
+  console.log("prevnext fun start")
+  console.log("teamId",teamId)
+  console.log("date is", date)
+  let teamInfo = await dbService.getTeamDetails(teamId);
   // let teamInfo = await dbService.getTeamDetails(teamId);
   let teamInfoArray = new Array(teamInfo);
 
@@ -86,7 +91,7 @@ async function getPreviousNextDayRisk(teamId, date) {
   });
 
   let teamIdArray = new Array();
-  teamIdArray.push(teamId.teamId);
+  teamIdArray.push(teamId);
   // teamIdArray.push(teamId);
   let TeamMemberCount = await dbService.getTeamMemberCount(teamIdArray);
   let employeeOnLeaveCountArray = new Array();
@@ -109,10 +114,12 @@ async function getPreviousNextDayRisk(teamId, date) {
     if (day.length < 2) day = "0" + day;
 
     var formattedDate = [year, month, day].join("-");
+    console.log("formatted date", formattedDate)
     let employeeOnLeaveCount = await dbService.getEmployeeOnLeave(
       employeeIdArray,
       formattedDate
     );
+
     employeeOnLeaveCountArray.push(employeeOnLeaveCount);
   }
 
@@ -213,7 +220,34 @@ async function getPreviousNextWeekRisk(teamId, startDateOfWeek, endDateOfWeek) {
     weeklyRiskArray.push(weeklyRisk);
   }
 
-  return weeklyRiskArray;
+
+  var teamWeeklyRisk = {};
+  for (var index = 0; index < weeklyRiskArray.length; index++) {
+    var week = weeklyRiskArray[index];
+
+    for (var i = 0; i < week.length; i++) {
+      var id = week[i].teamId;
+      var risk = week[i].riskIs;
+      var date = week[i].date;
+      var hasId = teamWeeklyRisk.hasOwnProperty(id);
+
+      if (!hasId) {
+        teamWeeklyRisk = {
+          ...teamWeeklyRisk,
+          [id]: { date: [], weekRisk: [] },
+        };
+      }
+
+      teamWeeklyRisk[id].date.push(date);
+      teamWeeklyRisk[id].weekRisk.push(risk);
+    }
+  }
+
+
+  return teamWeeklyRisk;
+  
+
+
 }
 
 module.exports = {
