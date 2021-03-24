@@ -36,13 +36,13 @@ app.post("/leave/addLeave", async (req, res) => {
 });
 
 app.get("/risk/getDayRisk", async (req, res) => {
-  // let cognitoIdentityId =
-  //   req.apiGateway.event.requestContext.identity.cognitoIdentityId;
+  let cognitoIdentityId =
+    req.apiGateway.event.requestContext.identity.cognitoIdentityId;
   //"ap-south-1:de248c54-4d9b-4bc1-92d3-3c2eee10ea43"
   let date = new Date();
 
   riskCalculation
-    .getDayRisk("ap-south-1:de248c54-4d9b-4bc1-92d3-3c2eee10ea43", date)
+    .getDayRisk(cognitoIdentityId, date)
     .then((results) => {
       res.send(results);
     })
@@ -86,7 +86,7 @@ app.get(
   //  let prevstartDate = new Date(date.setDate(8));
   //  let prevendDate = new Date(date.setDate(14));
     riskCalculation
-      .getPreviousNextWeekRisk(req.params)
+      .getPreviousNextWeekRisk(req.params.teamId, req.params.startDateOfWeek, req.params.endDateOfWeek)
       .then((results) => {
         res.send(results);
       })

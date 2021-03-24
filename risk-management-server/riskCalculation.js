@@ -202,6 +202,7 @@ async function getWeeklyRisk(cognitoId, date) {
 
 async function getPreviousNextWeekRisk(teamId, startDateOfWeek, endDateOfWeek) {
   let weekDaysDateArray = new Array();
+  console.log()
 
   for (
     var d = startDateOfWeek;
@@ -243,11 +244,7 @@ async function getPreviousNextWeekRisk(teamId, startDateOfWeek, endDateOfWeek) {
     }
   }
 
-
   return teamWeeklyRisk;
-  
-
-
 }
 
 module.exports = {

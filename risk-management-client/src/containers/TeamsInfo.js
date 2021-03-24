@@ -95,7 +95,7 @@ var TeamsInfo = () => {
           tempTeamDataMap[id].day = risk;
         }
         setTeamData(tempTeamDataMap);
-        console.log("tempTeamDataMap", tempTeamDataMap)
+        console.log("tempTeamDataMap", tempTeamDataMap);
       });
     } catch (err) {
       console.error(err.message);
@@ -122,21 +122,21 @@ var TeamsInfo = () => {
     if (month.length < 2) month = "0" + month;
     if (day.length < 2) day = "0" + day;
 
-    var previousDate = [year, month, day].join("-");
+    let previousDate = [year, month, day].join("-");
 
     try {
       await API.get(
         "riskmanagement",
         `/risk/getPreviousNextDayRisk/${teamId}/${previousDate}`
       ).then((response) => {
-        console.log("response", response)
+        console.log("response", response);
         let tempTeamDataMap = { ...teamData };
         for (let index = 0; index < response.length; index++) {
-          let risk =  response[index].riskIs;
+          let risk = response[index].riskIs;
           tempTeamDataMap[teamId].day = risk;
         }
         setTeamData(tempTeamDataMap);
-        console.log("after set team data", tempTeamDataMap)
+        console.log("after set team data", tempTeamDataMap);
       });
     } catch (err) {
       console.error(err.message);
@@ -162,21 +162,21 @@ var TeamsInfo = () => {
     if (month.length < 2) month = "0" + month;
     if (day.length < 2) day = "0" + day;
 
-    var nextDate = [year, month, day].join("-");
+    let nextDate = [year, month, day].join("-");
 
     try {
       await API.get(
         "riskmanagement",
         `/risk/getPreviousNextDayRisk/${teamId}/${nextDate}`
       ).then((response) => {
-        console.log("next fun response", response)
+        console.log("next fun response", response);
         let tempTeamDataMap = { ...teamData };
         for (let index = 0; index < response.length; index++) {
-          let risk =  response[index].riskIs;
+          let risk = response[index].riskIs;
           tempTeamDataMap[teamId].day = risk;
         }
         setTeamData(tempTeamDataMap);
-        console.log("after set team data next fun", tempTeamDataMap)
+        console.log("after set team data next fun", tempTeamDataMap);
       });
     } catch (err) {
       console.error(err.message);
@@ -216,6 +216,70 @@ var TeamsInfo = () => {
   // useEffect(() => {
   //   showWeeklyRisk();
   // }, []);
+
+  var showPreviousWeekRisk = async (teamId) => {
+    console.log("inside prev week fun");
+    let tempRiskFor = { ...riskFor };
+    console.log("copy of risk for", tempRiskFor);
+
+    let riskMap = tempRiskFor[teamId];
+    let startDate = riskMap.startDateOfWeek;
+    console.log("startDate", startDate)
+
+    let prevEndDate = new Date(startDate);
+    prevEndDate.setDate(startDate.getDate() - 1);
+    console.log("prevEndDate is", prevEndDate);
+
+    let prevStartDate =  new Date(prevEndDate);
+    prevStartDate.setDate(prevEndDate.getDate() - 6);
+    console.log("prevStartDate is", prevStartDate);
+
+    tempRiskFor[teamId].startDateOfWeek = prevStartDate;
+    setRiskFor(tempRiskFor);
+
+    let startD = new Date(prevStartDate),
+      prevStartMonth = "" + (startD.getMonth() + 1),
+      prevStartDay = "" + startD.getDate(),
+      prevStartYear = startD.getFullYear();
+    if (prevStartMonth.length < 2) prevStartMonth = "0" + prevStartMonth;
+    if (prevStartDay.length < 2) prevStartDay = "0" + prevStartDay;
+
+    let startDateOfWeek = [prevStartYear, prevStartMonth, prevStartDay].join(
+      "-"
+    );
+
+    console.log("formatted startDateOfWeek", startDateOfWeek)
+
+    let endD = new Date(prevEndDate),
+      prevEndMonth = "" + (endD.getMonth() + 1),
+      prevEndDay = "" + endD.getDate(),
+      prevEndYear = endD.getFullYear();
+    if (prevEndMonth.length < 2) prevEndMonth = "0" + prevEndMonth;
+    if (prevEndDay.length < 2) prevEndDay = "0" + prevEndDay;
+
+    let endDateOfWeek = [prevEndYear, prevEndMonth, prevEndDay].join("-");
+  console.log("formatted endDateOfWeek", endDateOfWeek)
+
+  try {
+    await API.get(
+      "riskmanagement",
+      `/risk/getPreviousNextWeekRisk/${teamId}/${startDateOfWeek}/${endDateOfWeek}`
+    ).then((response) => {
+      console.log("prev week fun response", response);
+      let tempTeamDataMap = { ...teamData };
+      for (let index = 0; index < response.length; index++) {
+        let risk = response[index].weekRisk;
+        tempTeamDataMap[teamId].weekRisk = risk;
+      }
+      setTeamData(tempTeamDataMap);
+      console.log("after set team data prev week fun", tempTeamDataMap);
+    });
+  } catch (err) {
+    console.error(err.message);
+  }
+
+  };
+
 
   return (
     <React.Fragment>
@@ -298,17 +362,24 @@ var TeamsInfo = () => {
                           }}
                         />{" "}
                         <FaIcons.FaSquare size={20} style={{ fill: "green" }} />{" "}
-                        <FaIcons.FaChevronRight 
-                         onClick={() => {
-                          showNextDayRisk(teamData[team].teamId);
-                        }}/>{" "}
+                        <FaIcons.FaChevronRight
+                          onClick={() => {
+                            showNextDayRisk(teamData[team].teamId);
+                          }}
+                        />{" "}
                       </div>
                     )}
                     ​​​​​​​​
                   </div>
                 </td>
                 <td>
-                  <div  >
+                <div>
+                  <FaIcons.FaChevronLeft
+                    onClick={() => {
+                      showPreviousWeekRisk(teamData[team].teamId);
+                    }}
+                  />{" "}
+                  
                     {teamData[team].weekRisk.map((weekrisk) => {
                       // eslint-disable-next-line no-lone-blocks
                       return (
