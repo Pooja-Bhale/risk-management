@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import API from "@aws-amplify/api";
 import * as FaIcons from "react-icons/fa";
 import AddLeave from "./AddLeave";
+import "./TeamsInfo";
 
 var TeamsInfo = () => {
   var [allTeams, setTeams] = useState([]);
@@ -18,7 +19,12 @@ var TeamsInfo = () => {
     if (!hasId) {
       teamData = {
         ...teamData,
-        [id]: { teamId: 0, teamName: "", day: null, weekRisk: [] },
+        [id]: {
+          teamId: 0,
+          teamName: "",
+          day: null,
+          weekRisk: [null, null, null, null, null, null, null],
+        },
       };
     }
     teamData[id].teamId = id;
@@ -64,26 +70,17 @@ var TeamsInfo = () => {
   }, []);
 
   var showTodayRisk = async () => {
-    var todayComp = document.getElementById("todayRiskComp");
-    var weeklyComp = document.getElementById("weeklyRiskComp");
-    // for (let index = 0; index < allTeams.length; index++) {
-    //   var todayRiskData = "todayRiskDataComp" + allTeams[index].teamId;
-    //   console.log("todayRiskData", todayRiskData)
+    // var todayComp = document.getElementById("todayRiskComp");
+    // var weeklyComp = document.getElementById("weeklyRiskComp");
+    // if (
+    //   todayComp.style.display === "none"
+    // ) {
+    //   todayComp.style.display = "block";
+    //   weeklyComp.style.display = "none";
+    // } else {
+    //   todayComp.style.display = "none";
+    //   weeklyComp.style.display = "none";
     // }
-    // var todayDataComp = document.getElementById(todayRiskData);
-
-    if (
-      todayComp.style.display === "none"
-      //&& todayDataComp.style.display === "none"
-    ) {
-      todayComp.style.display = "block";
-      // todayDataComp.style.display = "block";
-      weeklyComp.style.display = "none";
-    } else {
-      todayComp.style.display = "none";
-      // todayDataComp.style.display = "none";
-      weeklyComp.style.display = "none";
-    }
     //
     try {
       await API.get("riskmanagement", "/risk/getDayRisk").then((response) => {
@@ -143,8 +140,6 @@ var TeamsInfo = () => {
     }
   };
 
-  
-
   var showNextDayRisk = async (teamId) => {
     console.log("insidde nexr ffun");
     let tempRiskFor = { ...riskFor };
@@ -186,16 +181,16 @@ var TeamsInfo = () => {
   };
 
   async function showWeeklyRisk() {
-    var weeklyComp = document.getElementById("weeklyRiskComp");
-    var todayComp = document.getElementById("todayRiskComp");
+    // var weeklyComp = document.getElementById("weeklyRiskComp");
+    // var todayComp = document.getElementById("todayRiskComp");
 
-    if (weeklyComp.style.display === "none") {
-      weeklyComp.style.display = "block";
-      todayComp.style.display = "none";
-    } else {
-      weeklyComp.style.display = "none";
-      todayComp.style.display = "none";
-    }
+    // if (weeklyComp.style.display === "none") {
+    //   weeklyComp.style.display = "block";
+    //   todayComp.style.display = "none";
+    // } else {
+    //   weeklyComp.style.display = "none";
+    //   todayComp.style.display = "none";
+    // }
     try {
       await API.get("riskmanagement", "/risk/getWeeklyRisk").then(
         (response) => {
@@ -215,9 +210,9 @@ var TeamsInfo = () => {
     }
   }
 
-  // useEffect(() => {
-  //   showWeeklyRisk();
-  // }, []);
+  useEffect(() => {
+    showWeeklyRisk();
+  }, []);
 
   var showPreviousWeekRisk = async (teamId) => {
     console.log("inside prev week fun");
@@ -342,12 +337,10 @@ var TeamsInfo = () => {
               <p>Team Name</p>
             </th>
             <th>
-              <p id="todayRiskComp" Style="display:none;">
-                Today
-              </p>
-              <p id="weeklyRiskComp" Style="display:none;">
-                Weekly
-              </p>
+              <p id="todayRiskComp">Today</p>
+            </th>
+            <th>
+              <p id="weeklyRiskComp">Weekly</p>
             </th>
             <th>
               <p>View calendar</p>
@@ -368,71 +361,60 @@ var TeamsInfo = () => {
                   </a>
                 </td>
                 <td>
-                  <div
-                  // id={​​​​​​​​"todayRiskDataComp" + team.teamId}​​​​​​​​
-                  >
+                  <div id="todayRiskDataComp">
+                    <FaIcons.FaChevronLeft
+                      onClick={() => {
+                        showPreviousDayRisk(teamData[team].teamId);
+                      }}
+                    />{" "}
                     {teamData[team].day === true ? (
-                      <div>
-                        <FaIcons.FaChevronLeft
-                          onClick={() => {
-                            showPreviousDayRisk(teamData[team].teamId);
-                          }}
-                        />{" "}
-                        <FaIcons.FaSquare size={20} style={{ fill: "red" }} />
-                        <FaIcons.FaChevronRight  onClick={() => {
-                            showNextDayRisk(teamData[team].teamId);
-                          }}/>{" "}
-                      </div>
+                      <FaIcons.FaSquare size={20} style={{ fill: "red" }} />
                     ) : (
-                      <div>
-                        <FaIcons.FaChevronLeft
-                          onClick={() => {
-                            showPreviousDayRisk(teamData[team].teamId);
-                          }}
-                        />{" "}
-                        <FaIcons.FaSquare size={20} style={{ fill: "green" }} />{" "}
-                        <FaIcons.FaChevronRight
-                          onClick={() => {
-                            showNextDayRisk(teamData[team].teamId);
-                          }}
-                        />{" "}
-                      </div>
+                      <FaIcons.FaSquare size={20} style={{ fill: "green" }} />
                     )}
-                    ​​​​​​​​
+                    <FaIcons.FaChevronRight
+                      onClick={() => {
+                        showNextDayRisk(teamData[team].teamId);
+                      }}
+                    />{" "}
                   </div>
                 </td>
                 <td>
                   <div>
+                    <div Style="display: inline-block;">
                     <FaIcons.FaChevronLeft
                       onClick={() => {
                         showPreviousWeekRisk(teamData[team].teamId);
                       }}
-                    />{" "}
-                    {teamData[team].weekRisk.map((weekrisk) => {
-                      // eslint-disable-next-line no-lone-blocks
-                      return (
-                        <div className="float-left ">
-                          {weekrisk === true ? (
-                            <FaIcons.FaSquare
-                              size={20}
-                              style={{ fill: "red" }}
-                            />
-                          ) : (
-                            <FaIcons.FaSquare
-                              size={20}
-                              style={{ fill: "green" }}
-                            />
-                          )}
-                          ​​​​​​​​
-                        </div>
-                      );
-                    })}
+                    />
+                    </div>
+                    <div Style="display: inline-block;">
+                      {teamData[team].weekRisk.map((weekrisk) => {
+                        // eslint-disable-next-line no-lone-blocks
+                        return (
+                          <div Style="display: inline-block;">
+                            {weekrisk === true ? (
+                              <FaIcons.FaSquare
+                                size={20}
+                                style={{ fill: "red" }}
+                              />
+                            ) : (
+                              <FaIcons.FaSquare
+                                size={20}
+                                style={{ fill: "green" }}
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div Style="display: inline-block;">
                     <FaIcons.FaChevronRight
                       onClick={() => {
                         showNextWeekRisk(teamData[team].teamId);
                       }}
-                    />{" "}
-                    ​​​​​​​​
+                    />
+                    </div>
                   </div>
                 </td>
                 <td>

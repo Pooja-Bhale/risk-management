@@ -1,7 +1,4 @@
-.row {
-    /* margin: 30px 0; */
-    font-weight: bold;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
+.inline { 
+    display: inline-block; 
+    
+    }
