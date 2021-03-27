@@ -2,7 +2,6 @@ const dbService = require("./dbService");
 
 async function getDayRisk(cognitoId, date) {
   let teamInfo = await dbService.getTeamsInfo(cognitoId);
-  console.log(teamInfo, "teamInfo msg");
   let teamIdArray = teamInfo.map(function (teamId) {
     return teamId["teamId"];
   });
@@ -10,7 +9,11 @@ async function getDayRisk(cognitoId, date) {
     return parseInt(teamThreshold["threshold"]);
   });
 
-  let TeamMemberCount = await dbService.getTeamMemberCount(teamIdArray);
+  let TeamMemberCountArray = new Array();
+  for (let index = 0; index < teamIdArray.length; index++) {
+  let TeamMemberCount = await dbService.getTeamMemberCount(teamIdArray[index]);
+  TeamMemberCountArray.push(TeamMemberCount[0].dataValues.count);
+  }
   let employeeOnLeaveCountArray = new Array();
 
   for (let index = 0; index < teamIdArray.length; index++) {
@@ -36,17 +39,16 @@ async function getDayRisk(cognitoId, date) {
       formattedDate
     );
     employeeOnLeaveCountArray.push(employeeOnLeaveCount);
-    console.log("employeeOnLeaveCount", employeeOnLeaveCountArray)
   }
+
 
   let percentOfUnavailableEmployeeArray = new Array();
 
-  for (let index = 0; index < TeamMemberCount.length; index++) {
+  for (let index = 0; index < TeamMemberCountArray.length; index++) {
     let percentOfUnavailableEmployee =
       (employeeOnLeaveCountArray[index] /
-        TeamMemberCount[index].dataValues.count) *
+        TeamMemberCountArray[index]) *
       100;
-      console.log("percentOfUnavailableEmployee", percentOfUnavailableEmployee)
     percentOfUnavailableEmployeeArray.push(percentOfUnavailableEmployee);
   }
 

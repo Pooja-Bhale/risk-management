@@ -70,18 +70,7 @@ var TeamsInfo = () => {
   }, []);
 
   var showTodayRisk = async () => {
-    // var todayComp = document.getElementById("todayRiskComp");
-    // var weeklyComp = document.getElementById("weeklyRiskComp");
-    // if (
-    //   todayComp.style.display === "none"
-    // ) {
-    //   todayComp.style.display = "block";
-    //   weeklyComp.style.display = "none";
-    // } else {
-    //   todayComp.style.display = "none";
-    //   weeklyComp.style.display = "none";
-    // }
-    //
+    
     try {
       await API.get("riskmanagement", "/risk/getDayRisk").then((response) => {
         setDayRisk(response);
@@ -181,16 +170,7 @@ var TeamsInfo = () => {
   };
 
   async function showWeeklyRisk() {
-    // var weeklyComp = document.getElementById("weeklyRiskComp");
-    // var todayComp = document.getElementById("todayRiskComp");
-
-    // if (weeklyComp.style.display === "none") {
-    //   weeklyComp.style.display = "block";
-    //   todayComp.style.display = "none";
-    // } else {
-    //   weeklyComp.style.display = "none";
-    //   todayComp.style.display = "none";
-    // }
+    
     try {
       await API.get("riskmanagement", "/risk/getWeeklyRisk").then(
         (response) => {
@@ -318,7 +298,7 @@ var TeamsInfo = () => {
               className="btn btn-success float-right"
               onClick={showWeeklyRisk}
             >
-              Weekly
+              This week
             </button>
             <button
               Style="margin-top:30px; margin-bottom:30px; margin-right:10px;"
@@ -335,15 +315,19 @@ var TeamsInfo = () => {
           <tr>
             <th>
               <p>Team Name</p>
+              <p Style="color: white;">no text</p>
             </th>
             <th>
               <p id="todayRiskComp">Today</p>
+              <p Style="color: white;">no text</p>
             </th>
             <th>
-              <p id="weeklyRiskComp">Weekly</p>
+              <p id="weeklyRiskComp" Style="margin-left: 50px;">This week</p>
+              <p>| M | T | W | T | F | S | S |</p>
             </th>
             <th>
               <p>View calendar</p>
+              <p Style="color: white;">no text</p>
             </th>
           </tr>
         </thead>

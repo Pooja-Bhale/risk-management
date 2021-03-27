@@ -114,7 +114,7 @@ function getTeamDetails(teamId) {
 }
 
 function getTeamMemberCount(teamId) {
-  const Operator = Sequelize.Op;
+  // const Operator = Sequelize.Op;
   return new Promise(async (resolve, reject) => {
     await TeamMember.findAll({
       attributes: [
@@ -123,9 +123,8 @@ function getTeamMemberCount(teamId) {
       ],
       group: ["teamId"],
       where: {
-        teamId: {
-          [Operator.in]: teamId,
-        },
+        teamId:teamId,
+        
       },
     })
       .then((results) => {
@@ -209,7 +208,6 @@ function addLeave(value) {
       employeeId: value.employeeId,
       startDate: value.startDate,
       endDate: value.endDate,
-      reason: value.reason,
       status: value.status,
     })
       .then((results) => {
@@ -244,17 +242,52 @@ async function getTeamCompleteInfo(teamId)
   let employeeIdArray = teamMember.map(function (employeeId) {
     return employeeId["employeeId"];
   });
-
   let employeeDetailskArray = new Array();
   for (let index = 0; index < employeeIdArray.length; index++) {
     let employeeDetails = await getEmployeeDetails(employeeIdArray[index])
     employeeDetailskArray.push(employeeDetails);
 
   }
-  
   let result = team.concat(employeeDetailskArray);
   return result;
 }
+
+async function getTeamMemberDetails(cognitoId)
+{
+ 
+  let employeeIdOfManager = await getEmployeeId(cognitoId);
+  console.log("employeeIdOfManager", employeeIdOfManager)
+  let teamId = await getTeamId(employeeIdOfManager.employeeId);
+  console.log("teamId", teamId);
+  let teamIdArray = teamId.map(function (teamId) {
+    return teamId["teamId"];
+  });
+  console.log("teamIdArray", teamIdArray)
+  let teamMemberIdArray = new Array();
+  for (let index = 0; index < teamIdArray.length; index++) {
+  let teamMemberId = await getEmployeeIdOfTeamMember(teamIdArray[index]);
+  console.log("teamMemberId", teamMemberId)
+  for (let index = 0; index < teamMemberId.length; index++) {
+  teamMemberIdArray.push(teamMemberId[index].employeeId);
+  }
+  }
+  console.log("teamMemberIdArray", teamMemberIdArray)
+  let distinct = (value, index, self) =>{
+    return self.indexOf(value) === index;
+  }
+  let distinctTeamMemberIdArray = teamMemberIdArray.filter(distinct);
+  console.log("distinctTeamMemberIdArray", distinctTeamMemberIdArray)
+
+  let teamMemberDetailsArray = new Array()
+  for (let index = 0; index < distinctTeamMemberIdArray.length; index++) {
+    let teamMemberDetails = await getEmployeeDetails(distinctTeamMemberIdArray[index])
+    console.log("teamMemberDetails", teamMemberDetails)
+    teamMemberDetailsArray.push(teamMemberDetails);
+  }
+  console.log("teamMemberDetailsArray", teamMemberDetailsArray)
+  return teamMemberDetailsArray;
+}
+
 
 module.exports = {
   addEmployee,
@@ -267,5 +300,6 @@ module.exports = {
   getEmployeeOnLeave,
   addLeave,
   getTeamsInfo,
-  getTeamCompleteInfo
+  getTeamCompleteInfo,
+  getTeamMemberDetails
 };

@@ -114,6 +114,24 @@ app.get("/team/getTeamDetails/:teamId", async (req, res) => {
     .catch((error) => res.send(error));
 });
 
+app.get("/team/getTeamMember", async (req, res) => {
+  let cognitoIdentityId =
+    req.apiGateway.event.requestContext.identity.cognitoIdentityId;
+  dbService.getTeamMemberDetails(cognitoIdentityId)
+     .then((results) => {
+       res.send(results);
+     })
+     .catch((error) => res.send(error));
+ });
+
+// app.get("/test", async (req, res) => {
+//   dbService.addLeave()
+//      .then((results) => {
+//        res.send(results);
+//      })
+//      .catch((error) => res.send(error));
+//  });
+
 app.listen(2000, () => console.log("listening to port 2000"));
 
 module.exports.handler = serverless(app);

@@ -5,14 +5,15 @@
   
   .Home .lander h1 {
     font-family: "Open Sans", sans-serif;
+    margin-top: 100px;
     font-weight: 600;
   }
 
   .container{
     width: 100%;
-    height: 100%;
+    /* height: 500px; */
   }
 
-  .Home{
+  /* .Home{
     background-image: "url(/risk.png)";
-  }
+  } */

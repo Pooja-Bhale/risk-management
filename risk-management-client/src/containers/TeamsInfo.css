@@ -1,4 +1,5 @@
-.inline { 
-    display: inline-block; 
+p { 
+    margin-top: none;
+    margin-bottom: none;
     
     }

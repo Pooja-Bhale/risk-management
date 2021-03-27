@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useFormFields } from "../libs/hooksLib";
@@ -7,19 +7,39 @@ import API from "@aws-amplify/api";
 import LoaderButton from "../components/LoaderButton";
 
 const AddLeave = () => {
-  const [show, setShow] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [fields, handleFieldChange] = useFormFields({
+  var [show, setShow] = useState(false);
+  var [isLoading, setIsLoading] = useState(false);
+  var [teamMember, setTeamMember] = useState([]);
+  var [fields, handleFieldChange] = useFormFields({
     employeeId: "",
     startDate: "",
     endDate: "",
-    reason: "",
   });
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  console.log("fields aare", fields);
+  var handleClose = () => setShow(false);
+  var handleShow = () => setShow(true);
 
-  const handleSubmit = async (e) => {
+  useEffect(() => {
+    var getTeamMember = async () => {
+      console.log("function start");
+      try {
+        console.log("next is api call");
+        let response = await API.get("riskmanagement", "/team/getTeamMember");
+        setTeamMember(response);
+        console.log("api is called");
+        console.log("teamMember ::::", teamMember);
+      } catch (err) {
+        console.error(err.message);
+      }
+    };
+
+    if (show) {
+      getTeamMember();
+    }
+  }, [show]);
+
+  var handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -28,10 +48,10 @@ const AddLeave = () => {
         employeeId: fields.employeeId,
         startDate: fields.startDate,
         endDate: fields.endDate,
-        reason: fields.reason,
       };
-      const response = await API.post("riskmanagement", "/leave/addLeave", {
-        // headers: { "Content-Type": "application/json" },
+      console.log("in handle submit fun");
+      console.log("body", body);
+      let response = await API.post("riskmanagement", "/leave/addLeave", {
         body: body,
       });
       console.log(response);
@@ -39,7 +59,6 @@ const AddLeave = () => {
     } catch (err) {
       console.error(err.message);
       setIsLoading(false);
-
     }
   };
 
@@ -61,52 +80,52 @@ const AddLeave = () => {
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
             <Form.Group controlId="employeeId" size="lg">
-              <Form.Label>EmployeeId *</Form.Label>
+              <Form.Label>Employee Name *</Form.Label>
               <Form.Control
-                autoFocus
-                type="text"
-                placeholder="Enter employeeId"
+                as="select"
                 value={fields.employeeId}
                 onChange={handleFieldChange}
-              />
+              >
+                <option>Select</option>
+                {teamMember.map((teamMember) => (
+                  <option
+                    key={teamMember.employeeId}
+                    value={teamMember.employeeId}
+                  >
+                    {teamMember.firstName}
+                  </option>
+                ))}
+              </Form.Control>
             </Form.Group>
             <Form.Group controlId="startDate" size="lg">
               <Form.Label>Start Date *</Form.Label>
               <Form.Control
                 type="date"
-                // placeholder="Enter your last name"
                 value={fields.startDate}
                 onChange={handleFieldChange}
               />
             </Form.Group>
             <Form.Group controlId="endDate" size="lg">
-              <Form.Label>End Date *</Form.Label>
+              <Form.Label>End Date </Form.Label>
               <Form.Control
                 type="date"
-                // placeholder="Enter your email address"
                 value={fields.endDate}
                 onChange={handleFieldChange}
               />
             </Form.Group>
-            <Form.Group controlId="reason" size="lg">
-              <Form.Label>Reason </Form.Label>
-              <Form.Control
-                type="text"
-                // placeholder="Enter your password"
-                value={fields.reason}
-                onChange={handleFieldChange}
-              />
-            </Form.Group>
-            
           </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleClose}>
             Close
           </Button>
-          <LoaderButton  type="submit" isLoading={isLoading} onClick={(e) => handleSubmit(e)}>
-              Save
-            </LoaderButton>
+          <LoaderButton
+            type="submit"
+            isLoading={isLoading}
+            onClick={(e) => handleSubmit(e)}
+          >
+            Save
+          </LoaderButton>
           {/* <Button variant="primary" onClick={handleClose}>
             Save Changes
           </Button> */}
