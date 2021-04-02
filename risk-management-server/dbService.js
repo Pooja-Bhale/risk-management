@@ -53,7 +53,7 @@ function getEmployeeId(cognitoId) {
 function getEmployeeDetails(employeeId) {
   return new Promise(async (resolve, reject) => {
     await Employee.findOne({
-      attributes: ["employeeId","firstName", "lastName"],
+      attributes: ["employeeId", "firstName", "lastName"],
       where: {
         employeeId: employeeId,
       },
@@ -123,8 +123,7 @@ function getTeamMemberCount(teamId) {
       ],
       group: ["teamId"],
       where: {
-        teamId:teamId,
-        
+        teamId: teamId,
       },
     })
       .then((results) => {
@@ -165,7 +164,7 @@ function getEmployeeOnLeave(employeeId, date) {
   const Operator = Sequelize.Op;
   let dateIs = new Date(date);
   let day = dateIs.getDay();
-  if (day !== 0 || day !== 6) {
+  if (day == 1 || day == 2 || day == 3 || day == 4 || day == 5) {
     return new Promise(async (resolve, reject) => {
       await Leave.findAll({
         attributes: ["employeeId"],
@@ -197,8 +196,17 @@ function getEmployeeOnLeave(employeeId, date) {
         });
     });
   } else {
-    let employeeIdCount = JSON.stringify(0);
-    resolve(employeeIdCount);
+    return new Promise((resolve, reject) => {
+      let employeeIdCount = JSON.stringify(0);
+      let count = Promise.resolve(employeeIdCount);
+      count
+        .then((value) => {
+          resolve(value);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
   }
 }
 
@@ -235,59 +243,104 @@ async function getTeamsInfo(cognitoId) {
   return teamInfo;
 }
 
-async function getTeamCompleteInfo(teamId)
-{
-  let team =  new Array(await getTeamDetails(teamId.teamId));
+async function getTeamCompleteInfo(teamId) {
+  let team = new Array(await getTeamDetails(teamId.teamId));
   let teamMember = await getEmployeeIdOfTeamMember(teamId.teamId);
   let employeeIdArray = teamMember.map(function (employeeId) {
     return employeeId["employeeId"];
   });
   let employeeDetailskArray = new Array();
   for (let index = 0; index < employeeIdArray.length; index++) {
-    let employeeDetails = await getEmployeeDetails(employeeIdArray[index])
+    let employeeDetails = await getEmployeeDetails(employeeIdArray[index]);
     employeeDetailskArray.push(employeeDetails);
-
   }
   let result = team.concat(employeeDetailskArray);
   return result;
 }
 
-async function getTeamMemberDetails(cognitoId)
-{
- 
+async function getTeamMemberDetails(cognitoId) {
   let employeeIdOfManager = await getEmployeeId(cognitoId);
-  console.log("employeeIdOfManager", employeeIdOfManager)
+  console.log("employeeIdOfManager", employeeIdOfManager);
   let teamId = await getTeamId(employeeIdOfManager.employeeId);
   console.log("teamId", teamId);
   let teamIdArray = teamId.map(function (teamId) {
     return teamId["teamId"];
   });
-  console.log("teamIdArray", teamIdArray)
+  console.log("teamIdArray", teamIdArray);
   let teamMemberIdArray = new Array();
   for (let index = 0; index < teamIdArray.length; index++) {
-  let teamMemberId = await getEmployeeIdOfTeamMember(teamIdArray[index]);
-  console.log("teamMemberId", teamMemberId)
-  for (let index = 0; index < teamMemberId.length; index++) {
-  teamMemberIdArray.push(teamMemberId[index].employeeId);
+    let teamMemberId = await getEmployeeIdOfTeamMember(teamIdArray[index]);
+    console.log("teamMemberId", teamMemberId);
+    for (let index = 0; index < teamMemberId.length; index++) {
+      teamMemberIdArray.push(teamMemberId[index].employeeId);
+    }
   }
-  }
-  console.log("teamMemberIdArray", teamMemberIdArray)
-  let distinct = (value, index, self) =>{
+  console.log("teamMemberIdArray", teamMemberIdArray);
+  let distinct = (value, index, self) => {
     return self.indexOf(value) === index;
-  }
+  };
   let distinctTeamMemberIdArray = teamMemberIdArray.filter(distinct);
-  console.log("distinctTeamMemberIdArray", distinctTeamMemberIdArray)
+  console.log("distinctTeamMemberIdArray", distinctTeamMemberIdArray);
 
-  let teamMemberDetailsArray = new Array()
+  let teamMemberDetailsArray = new Array();
   for (let index = 0; index < distinctTeamMemberIdArray.length; index++) {
-    let teamMemberDetails = await getEmployeeDetails(distinctTeamMemberIdArray[index])
-    console.log("teamMemberDetails", teamMemberDetails)
+    let teamMemberDetails = await getEmployeeDetails(
+      distinctTeamMemberIdArray[index]
+    );
+    console.log("teamMemberDetails", teamMemberDetails);
     teamMemberDetailsArray.push(teamMemberDetails);
   }
-  console.log("teamMemberDetailsArray", teamMemberDetailsArray)
+  console.log("teamMemberDetailsArray", teamMemberDetailsArray);
   return teamMemberDetailsArray;
 }
 
+async function getTeamEmployeeOnLeave(teamId, date) {
+  //teamId, date
+  let teamMemberIdArray = new Array();
+  let teamMemberId = await getEmployeeIdOfTeamMember(teamId);
+  console.log("teamMemberId", teamMemberId);
+  for (let index = 0; index < teamMemberId.length; index++) {
+    teamMemberIdArray.push(teamMemberId[index].employeeId);
+  }
+  console.log("teamMemberIdArray", teamMemberIdArray);
+  const Operator = Sequelize.Op;
+
+  let employeeId = await Leave.findAll({
+    attributes: ["employeeId"],
+    where: {
+      employeeId: {
+        [Operator.in]: teamMemberIdArray,
+      },
+
+      startDate: {
+        [Operator.lte]: date,
+      },
+
+      endDate: {
+        [Operator.gte]: date,
+      },
+    },
+  }).catch((error) => {
+    reject(error);
+  });
+
+  console.log("employeeId", employeeId);
+
+  let employeeldArray = employeeId.map(function (employeeId) {
+    return parseInt(employeeId["employeeId"]);
+  });
+
+  console.log("employeeldArray", employeeldArray);
+
+  let employeeOnLeaveDetails = new Array();
+  for (let index = 0; index < employeeldArray.length; index++) {
+    let employeeDetails = await getEmployeeDetails(employeeldArray[index]);
+    console.log("employeeDetails", employeeDetails);
+    employeeOnLeaveDetails.push(employeeDetails);
+  }
+
+  return employeeOnLeaveDetails;
+}
 
 module.exports = {
   addEmployee,
@@ -301,5 +354,6 @@ module.exports = {
   addLeave,
   getTeamsInfo,
   getTeamCompleteInfo,
-  getTeamMemberDetails
+  getTeamMemberDetails,
+  getTeamEmployeeOnLeave,
 };

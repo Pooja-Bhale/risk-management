@@ -35,6 +35,14 @@ app.post("/leave/addLeave", async (req, res) => {
     .catch((error) => res.send(error));
 });
 
+app.get("/leave/getLeaveDetails/:teamId/:date", async (req, res) => {
+  dbService.getTeamEmployeeOnLeave(req.params.teamId, req.params.date)
+     .then((results) => {
+       res.send(results);
+     })
+     .catch((error) => res.send(error));
+ });
+
 app.get("/risk/getDayRisk", async (req, res) => {
   let cognitoIdentityId =
     req.apiGateway.event.requestContext.identity.cognitoIdentityId;
@@ -124,13 +132,53 @@ app.get("/team/getTeamMember", async (req, res) => {
      .catch((error) => res.send(error));
  });
 
-// app.get("/test", async (req, res) => {
-//   dbService.addLeave()
+app.get("/team/getMonthlyRisk/:teamId", async (req, res) => {
+  let nowdate = new Date();
+  let monthStartDay = new Date(nowdate.getFullYear(), nowdate.getMonth(), 1);
+  let monthEndDay = new Date(nowdate.getFullYear(), nowdate.getMonth() + 1, 0);
+  riskCalculation.getMonthlyRisk(req.params, monthStartDay, monthEndDay)
+     .then((results) => {
+       res.send(results);
+     })
+     .catch((error) => res.send(error));
+ });
+
+ app.get("/team/getPrevNextMonthlyRisk/:teamId/:monthStartDay/:monthEndDay", async (req, res) => {
+  riskCalculation.getPrevNextMonthlyRisk(req.params.teamId, req.params.monthStartDay, req.params.monthEndDay)
+     .then((results) => {
+       res.send(results);
+     })
+     .catch((error) => res.send(error));
+ });
+
+//  app.get("/test", async (req, res) => {
+//    let teamId = 1;
+//   let nowdate = new Date();
+//   let monthStartDay = new Date(nowdate.getFullYear(), nowdate.getMonth(), 1);
+//   let monthEndDay = new Date(nowdate.getFullYear(), nowdate.getMonth() + 1, 0);
+//   let nextMonthStartDay = monthStartDay.toISOString();
+//   let nextMonthEndDay = monthEndDay.toISOString();
+
+//   riskCalculation.getMonthlyRisk(teamId, nextMonthStartDay, nextMonthEndDay)
 //      .then((results) => {
 //        res.send(results);
 //      })
 //      .catch((error) => res.send(error));
 //  });
+
+// // app.get("/test", async (req, res) => {
+//    let date = new Date();
+//    let leaveDate = new Date(date.setDate(21));
+//      let employeeId = [22,23,24,25];
+//     dbService.getEmployeeOnLeave(employeeId, leaveDate)
+//        .then((results) => {
+//          res.send(results);
+//        })
+//        .catch((error) => res.send(error));
+//    });
+
+
+
 
 app.listen(2000, () => console.log("listening to port 2000"));
 

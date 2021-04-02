@@ -11,8 +11,10 @@ async function getDayRisk(cognitoId, date) {
 
   let TeamMemberCountArray = new Array();
   for (let index = 0; index < teamIdArray.length; index++) {
-  let TeamMemberCount = await dbService.getTeamMemberCount(teamIdArray[index]);
-  TeamMemberCountArray.push(TeamMemberCount[0].dataValues.count);
+    let TeamMemberCount = await dbService.getTeamMemberCount(
+      teamIdArray[index]
+    );
+    TeamMemberCountArray.push(TeamMemberCount[0].dataValues.count);
   }
   let employeeOnLeaveCountArray = new Array();
 
@@ -41,14 +43,11 @@ async function getDayRisk(cognitoId, date) {
     employeeOnLeaveCountArray.push(employeeOnLeaveCount);
   }
 
-
   let percentOfUnavailableEmployeeArray = new Array();
 
   for (let index = 0; index < TeamMemberCountArray.length; index++) {
     let percentOfUnavailableEmployee =
-      (employeeOnLeaveCountArray[index] /
-        TeamMemberCountArray[index]) *
-      100;
+      (employeeOnLeaveCountArray[index] / TeamMemberCountArray[index]) * 100;
     percentOfUnavailableEmployeeArray.push(percentOfUnavailableEmployee);
   }
 
@@ -80,10 +79,9 @@ async function getDayRisk(cognitoId, date) {
 }
 
 async function getPreviousNextDayRisk(teamId, date) {
-
-  console.log("prevnext fun start")
-  console.log("teamId",teamId)
-  console.log("date is", date)
+  console.log("prevnext fun start");
+  console.log("teamId", teamId);
+  console.log("date is", date);
   let teamInfo = await dbService.getTeamDetails(teamId);
   // let teamInfo = await dbService.getTeamDetails(teamId);
   let teamInfoArray = new Array(teamInfo);
@@ -116,7 +114,7 @@ async function getPreviousNextDayRisk(teamId, date) {
     if (day.length < 2) day = "0" + day;
 
     var formattedDate = [year, month, day].join("-");
-    console.log("formatted date", formattedDate)
+    console.log("formatted date", formattedDate);
     let employeeOnLeaveCount = await dbService.getEmployeeOnLeave(
       employeeIdArray,
       formattedDate
@@ -143,10 +141,18 @@ async function getPreviousNextDayRisk(teamId, date) {
   ) {
     if (percentOfUnavailableEmployeeArray[index] >= teamThresholdArray[index]) {
       let risk = true;
-      riskArray.push({ ["teamId"]: teamIdArray[index], ["date"]:formattedDate , ["riskIs"]: risk });
+      riskArray.push({
+        ["teamId"]: teamIdArray[index],
+        ["date"]: formattedDate,
+        ["riskIs"]: risk,
+      });
     } else {
       let risk = false;
-      riskArray.push({ ["teamId"]: teamIdArray[index],  ["date"]:formattedDate , ["riskIs"]: risk });
+      riskArray.push({
+        ["teamId"]: teamIdArray[index],
+        ["date"]: formattedDate,
+        ["riskIs"]: risk,
+      });
     }
   }
   // const result = { ["teamID"]:, [formattedDate]: riskArray };
@@ -204,19 +210,20 @@ async function getWeeklyRisk(cognitoId, date) {
 
 async function getPreviousNextWeekRisk(teamId, startDateOfWeek, endDateOfWeek) {
   let weekDaysDateArray = new Array();
-  console.log("teamId, startDateOfWeek, endDateOfWeek", teamId, startDateOfWeek, endDateOfWeek)
+  console.log(
+    "teamId, startDateOfWeek, endDateOfWeek",
+    teamId,
+    startDateOfWeek,
+    endDateOfWeek
+  );
 
-  let start = new Date(startDateOfWeek)
-  let end = new Date(endDateOfWeek)
-  console.log("datessssssssssss", start, end)
-  for (
-    let d = start;
-    d <= end;
-    d.setDate(d.getDate() + 1)
-  ) {
+  let start = new Date(startDateOfWeek);
+  let end = new Date(endDateOfWeek);
+  console.log("datessssssssssss", start, end);
+  for (let d = start; d <= end; d.setDate(d.getDate() + 1)) {
     weekDaysDateArray.push(new Date(d));
   }
-  console.log("weekDaysDateArray", weekDaysDateArray)
+  console.log("weekDaysDateArray", weekDaysDateArray);
 
   let weeklyRiskArray = new Array();
   for (let index = 0; index < weekDaysDateArray.length; index++) {
@@ -226,8 +233,7 @@ async function getPreviousNextWeekRisk(teamId, startDateOfWeek, endDateOfWeek) {
     );
     weeklyRiskArray.push(weeklyRisk);
   }
-  console.log("weeklyRiskArray", weeklyRiskArray)
-
+  console.log("weeklyRiskArray", weeklyRiskArray);
 
   let teamWeeklyRisk = {};
   for (let index = 0; index < weeklyRiskArray.length; index++) {
@@ -250,9 +256,118 @@ async function getPreviousNextWeekRisk(teamId, startDateOfWeek, endDateOfWeek) {
       teamWeeklyRisk[id].weekRisk.push(risk);
     }
   }
-  console.log
 
   return teamWeeklyRisk;
+}
+
+async function getMonthlyRisk(teamId, monthStartDay, monthEndDay) {
+  // teamId , startDateOfMonth, endDateOfMonth
+  console.log("in monthly risk ffun");
+  console.log("teaam id isss", teamId);
+  console.log("firstDay", monthStartDay);
+  console.log("lastDay", monthEndDay);
+
+  let start = new Date(monthStartDay);
+  let end = new Date(monthEndDay);
+
+  let monthDateArray = new Array();
+
+  for (
+    let d = start;
+    d <= end;
+    d.setDate(d.getDate() + 1)
+  ) {
+    monthDateArray.push(new Date(d));
+  }
+
+  console.log("MonthDateArray", monthDateArray)
+
+  let monthlyRiskArray = new Array();
+  for (let index = 0; index < monthDateArray.length; index++) {
+    let monthlylyRisk = await getPreviousNextDayRisk(teamId.teamId, monthDateArray[index]);
+    monthlyRiskArray.push(monthlylyRisk);
+  }
+
+  console.log("monthlyRiskArray", monthlyRiskArray)
+  let teamMonthlyRisk = {};
+  for (let index = 0; index < monthlyRiskArray.length; index++) {
+    let week = monthlyRiskArray[index];
+
+    for (let i = 0; i < week.length; i++) {
+      let id = week[i].teamId;
+      let risk = week[i].riskIs;
+      let date = week[i].date;
+      let hasId = teamMonthlyRisk.hasOwnProperty(id);
+
+      if (!hasId) {
+        teamMonthlyRisk = {
+          ...teamMonthlyRisk,
+          [id]: { date: [], monthRisk: [] },
+        };
+      }
+
+      teamMonthlyRisk[id].date.push(date);
+      teamMonthlyRisk[id].monthRisk.push(risk);
+    }
+  }
+
+  return teamMonthlyRisk;
+
+}
+
+async function getPrevNextMonthlyRisk(teamId, monthStartDay, monthEndDay) {
+  // teamId , startDateOfMonth, endDateOfMonth
+  console.log("in monthly risk ffun");
+  console.log("teaam id isss", teamId);
+  console.log("firstDay", monthStartDay);
+  console.log("lastDay", monthEndDay);
+
+  let start = new Date(monthStartDay);
+  let end = new Date(monthEndDay);
+
+  let monthDateArray = new Array();
+
+  for (
+    let d = start;
+    d <= end;
+    d.setDate(d.getDate() + 1)
+  ) {
+    monthDateArray.push(new Date(d));
+  }
+
+  console.log("MonthDateArray", monthDateArray)
+
+  let monthlyRiskArray = new Array();
+  for (let index = 0; index < monthDateArray.length; index++) {
+    let monthlylyRisk = await getPreviousNextDayRisk(teamId, monthDateArray[index]);
+    monthlyRiskArray.push(monthlylyRisk);
+  }
+
+  console.log("monthlyRiskArray", monthlyRiskArray)
+  let teamMonthlyRisk = {};
+  for (let index = 0; index < monthlyRiskArray.length; index++) {
+    let week = monthlyRiskArray[index];
+
+    for (let i = 0; i < week.length; i++) {
+      let id = week[i].teamId;
+      let risk = week[i].riskIs;
+      let date = week[i].date;
+      let hasId = teamMonthlyRisk.hasOwnProperty(id);
+
+      if (!hasId) {
+        teamMonthlyRisk = {
+          ...teamMonthlyRisk,
+          [id]: { date: [], monthRisk: [] },
+        };
+      }
+
+      teamMonthlyRisk[id].date.push(date);
+      teamMonthlyRisk[id].monthRisk.push(risk);
+    }
+  }
+
+  return teamMonthlyRisk;
+
 }
 
 module.exports = {
@@ -260,4 +375,6 @@ module.exports = {
   getWeeklyRisk,
   getPreviousNextDayRisk,
   getPreviousNextWeekRisk,
+  getMonthlyRisk,
+  getPrevNextMonthlyRisk
 };

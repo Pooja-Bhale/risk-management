@@ -70,6 +70,7 @@ var TeamsInfo = () => {
   }, []);
 
   var showTodayRisk = async () => {
+    console.log("inside showTodayRisk")
     
     try {
       await API.get("riskmanagement", "/risk/getDayRisk").then((response) => {
@@ -170,7 +171,8 @@ var TeamsInfo = () => {
   };
 
   async function showWeeklyRisk() {
-    
+    console.log("inside showWeeklyRisk")
+
     try {
       await API.get("riskmanagement", "/risk/getWeeklyRisk").then(
         (response) => {
@@ -402,7 +404,7 @@ var TeamsInfo = () => {
                   </div>
                 </td>
                 <td>
-                  <button className="btn btn-primary">Calendar</button>
+                  <a href={`/Calendar/${teamData[team].teamId}`} className="btn btn-primary">Calendar</a>
                 </td>
               </tr>
             );

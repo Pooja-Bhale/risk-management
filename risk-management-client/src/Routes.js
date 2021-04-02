@@ -6,6 +6,8 @@ import Signup from "./containers/Signup";
 import TeamsInfo from "./containers/TeamsInfo";
 import NotFound from "./containers/NotFound";
 import TeamDetails from "./containers/TeamDetails";
+import Calendar from "./containers/CalendarView";
+
 
 export default function Routes() {
   return (
@@ -26,7 +28,8 @@ export default function Routes() {
         <TeamsInfo />
       </Route>
       <Route exact path="/TeamDetails/:teamId" component={TeamDetails}/>
-        
+      <Route exact path="/Calendar/:teamId" component={Calendar} />
+      <Route exact path="/leaveDetails/:teamId/:date" component={TeamDetails}/>
       {/* Finally, catch all unmatched routes */}
       <Route>
         <NotFound />
