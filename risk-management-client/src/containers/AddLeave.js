@@ -5,23 +5,24 @@ import { useFormFields } from "../libs/hooksLib";
 import Form from "react-bootstrap/Form";
 import API from "@aws-amplify/api";
 import LoaderButton from "../components/LoaderButton";
+import Select from "react-select";
 
 const AddLeave = () => {
   var [show, setShow] = useState(false);
   var [isLoading, setIsLoading] = useState(false);
   var [teamMember, setTeamMember] = useState([]);
   var [fields, handleFieldChange] = useFormFields({
-    employeeId: "",
+    // employeeId: "",
     startDate: "",
     endDate: "",
   });
 
+  var [employeeId, setEmployeeId] = useState()
+  console.log(employeeId,"*****")
+
   console.log("fields aare", fields);
   var handleClose = () => setShow(false);
   var handleShow = () => setShow(true);
-  
-
-  
 
   useEffect(() => {
     var getTeamMember = async () => {
@@ -36,7 +37,6 @@ const AddLeave = () => {
         console.error(err.message);
       }
     };
-    
 
     if (show) {
       getTeamMember();
@@ -48,11 +48,10 @@ const AddLeave = () => {
     setIsLoading(true);
 
     try {
-  
       const body = {
-        employeeId: fields.employeeId,
+        employeeId: employeeId,
         startDate: fields.startDate,
-        endDate: fields.endDate,
+        endDate: fields.endDate === "" ? fields.startDate : fields.endDate,
       };
       console.log("in handle submit fun");
       console.log("body", body);
@@ -84,7 +83,7 @@ const AddLeave = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
-            <Form.Group controlId="employeeId" size="lg">
+            {/* <Form.Group controlId="employeeId" size="lg">
               <Form.Label>Employee Name *</Form.Label>
               <Form.Control
                 as="select"
@@ -101,7 +100,19 @@ const AddLeave = () => {
                   </option>
                 ))}
               </Form.Control>
+            </Form.Group> */}
+
+            <Form.Group controlId="employeeId" size="lg">
+              <Form.Label>Employee Name *</Form.Label>
+              <Select
+                // value={teamMember.filter(({ value }) => value === teamMember.value)}
+                // onChange={({ value }) => setEmployeeId({ value })}
+                value={teamMember.label}
+                onChange={(option) => setEmployeeId(option.value) }
+                options={teamMember}
+              />
             </Form.Group>
+
             <Form.Group controlId="startDate" size="lg">
               <Form.Label>Start Date *</Form.Label>
               <Form.Control

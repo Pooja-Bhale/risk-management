@@ -9,176 +9,259 @@ app.use(cors());
 const db = require("./dbConnection");
 const dbService = require("./dbService");
 const riskCalculation = require("./riskCalculation");
+const Logger = require("./logger/logger");
+const log = new Logger();
 
 app.get("/server", (req, res) => {
   res.send("Hello it's server");
 });
 
 app.post("/employee/addEmployee", async (req, res) => {
+  log.info("/employee/addEmployee", log.methodStart);
   let cognitoIdentityId =
     req.apiGateway.event.requestContext.identity.cognitoIdentityId;
   dbService
     .addEmployee(req.body, cognitoIdentityId)
     .then((results) => {
       res.send(results);
+      log.info("/employee/addEmployee", log.methodEnd);
     })
-    .catch((error) => res.send(error));
+    .catch((error) => {
+      log.error(
+        "/employee/addEmployee",
+        "Error in addEmployee API " + error.message
+      );
+      res.send(error);
+      log.info("/employee/addEmployee", log.methodEnd);
+    });
 });
 
 app.post("/leave/addLeave", async (req, res) => {
-  
+  log.info("/leave/addLeave", log.methodStart);
   dbService
     .addLeave(req.body)
     .then((results) => {
       res.send(results);
+      log.info("/leave/addLeave", log.methodEnd);
     })
-    .catch((error) => res.send(error));
+    .catch((error) => {
+      log.error("/leave/addLeave", "Error in addLeave API " + error.message);
+      res.send(error);
+      log.info("/leave/addLeave", log.methodEnd);
+    });
 });
 
 app.get("/leave/getLeaveDetails/:teamId/:date", async (req, res) => {
-  dbService.getTeamEmployeeOnLeave(req.params.teamId, req.params.date)
-     .then((results) => {
-       res.send(results);
-     })
-     .catch((error) => res.send(error));
- });
+  log.info("/leave/getLeaveDetails/:teamId/:date", log.methodStart);
+  dbService
+    .getTeamEmployeeOnLeave(req.params.teamId, req.params.date)
+    .then((results) => {
+      res.send(results);
+      log.info("/leave/getLeaveDetails/:teamId/:date", log.methodEnd);
+    })
+    .catch((error) => {
+      log.error(
+        "/leave/getLeaveDetails/:teamId/:date",
+        "Error in getLeaveDetails API " + error.message
+      );
+      res.send(error);
+      log.info("/leave/getLeaveDetails/:teamId/:date", log.methodEnd);
+    });
+});
 
 app.get("/risk/getDayRisk", async (req, res) => {
+  log.info("/risk/getDayRisk", log.methodStart);
   let cognitoIdentityId =
     req.apiGateway.event.requestContext.identity.cognitoIdentityId;
-  //"ap-south-1:de248c54-4d9b-4bc1-92d3-3c2eee10ea43"
+  console.log("cognitoIdentityId", cognitoIdentityId);
   let date = new Date();
-
+  console.log("date", date);
   riskCalculation
     .getDayRisk(cognitoIdentityId, date)
     .then((results) => {
       res.send(results);
+      log.info("/risk/getDayRisk", log.methodEnd);
     })
-    .catch((error) => res.send(error));
+    .catch((error) => {
+      log.error("/risk/getDayRisk", "Error in getDayRisk API " + error.message);
+      res.send(error);
+      log.info("/risk/getDayRisk", log.methodEnd);
+    });
 });
 
 app.get("/risk/getWeeklyRisk", async (req, res) => {
+  log.info("/risk/getWeeklyRisk", log.methodStart);
   let cognitoIdentityId =
     req.apiGateway.event.requestContext.identity.cognitoIdentityId;
+  console.log("cognitoIdentityId", cognitoIdentityId);
   let date = new Date();
+  console.log("date", date);
 
   riskCalculation
     .getWeeklyRisk(cognitoIdentityId, date)
     .then((results) => {
       res.send(results);
+      log.info("/risk/getWeeklyRisk", log.methodEnd);
     })
-    .catch((error) => res.send(error));
+    .catch((error) => {
+      log.error(
+        "/risk/getWeeklyRisk",
+        "Error in getWeeklyRisk API " + error.message
+      );
+      res.send(error);
+      log.info("/risk/getWeeklyRisk", log.methodEnd);
+    });
 });
 
 app.get("/risk/getPreviousNextDayRisk/:teamId/:date", async (req, res) => {
-  // /:teamId/:date req.params
-  // let teamId = 1;
-  // let date = new Date();
-  // let prevDate = new Date(date);
-  // console.log("api start")
-  //   prevDate.setDate(prevDate.getDate() - 1)
+  log.info("/risk/getPreviousNextDayRisk/:teamId/:date", log.methodStart);
   riskCalculation
     .getPreviousNextDayRisk(req.params.teamId, req.params.date)
     .then((results) => {
       res.send(results);
+      log.info("/risk/getPreviousNextDayRisk/:teamId/:date", log.methodEnd);
     })
-    .catch((error) => res.send(error));
+    .catch((error) => {
+      log.error(
+        "/risk/getPreviousNextDayRisk/:teamId/:date",
+        "Error in getPreviousNextDayRisk API " + error.message
+      );
+      res.send(error);
+      log.info("/risk/getPreviousNextDayRisk/:teamId/:date", log.methodEnd);
+    });
 });
 
 app.get(
   "/risk/getPreviousNextWeekRisk/:teamId/:startDateOfWeek/:endDateOfWeek",
   async (req, res) => {
-  //  /:teamId/:startDateOfWeek/:endDateOfWeek req.params.teamId, req.params.startDateOfWeek, req.params.endDateOfWeek
-  //  let teamId = 1;
-  //  let date = new Date();
-  //  let prevstartDate = new Date(date.setDate(8)).toISOString();
-  //  let prevendDate = new Date(date.setDate(14)).toISOString();
+    log.info("/risk/getPreviousNextWeekRisk/:teamId/:startDateOfWeek/:endDateOfWeek", log.methodStart);
     riskCalculation
-      .getPreviousNextWeekRisk(req.params.teamId, req.params.startDateOfWeek, req.params.endDateOfWeek)
+      .getPreviousNextWeekRisk(
+        req.params.teamId,
+        req.params.startDateOfWeek,
+        req.params.endDateOfWeek
+      )
       .then((results) => {
         res.send(results);
+        log.info("/risk/getPreviousNextWeekRisk/:teamId/:startDateOfWeek/:endDateOfWeek", log.methodEnd);
       })
-      .catch((error) => res.send(error));
+      .catch((error) => {
+        log.error(
+          "/risk/getPreviousNextWeekRisk/:teamId/:startDateOfWeek/:endDateOfWeek",
+          "Error in getPreviousNextWeekRisk API " + error.message
+        );
+        res.send(error);
+        log.info("/risk/getPreviousNextWeekRisk/:teamId/:startDateOfWeek/:endDateOfWeek", log.methodEnd);
+      });
   }
 );
 
 app.get("/team/getTeamInfo", async (req, res) => {
+  log.info("/team/getTeamInfo", log.methodStart);
   let cognitoIdentityId =
     req.apiGateway.event.requestContext.identity.cognitoIdentityId;
+    console.log("cognitoIdentityId", cognitoIdentityId)
 
   dbService
     .getTeamsInfo(cognitoIdentityId)
     .then((results) => {
       res.send(results);
+      log.info("/team/getTeamInfo", log.methodEnd);
     })
-    .catch((error) => res.send(error));
+    .catch((error) => {
+      log.error(
+        "/team/getTeamInfo",
+        "Error in getPreviousNextWeekRisk API " + error.message
+      );
+      res.send(error);
+      log.info("/team/getTeamInfo", log.methodEnd);
+    });
 });
 
 app.get("/team/getTeamDetails/:teamId", async (req, res) => {
- dbService.getTeamCompleteInfo(req.params)
+  log.info("/team/getTeamInfo", log.methodStart);
+  dbService
+    .getTeamCompleteInfo(req.params)
     .then((results) => {
       res.send(results);
+      log.info("/team/getTeamDetails/:teamId", log.methodEnd);
     })
-    .catch((error) => res.send(error));
+    .catch((error) => {
+      log.error(
+        "/team/getTeamDetails/:teamId",
+        "Error in getTeamDetails API " + error.message
+      );
+      res.send(error);
+      log.info("/team/getTeamDetails/:teamId", log.methodEnd);
+    });
 });
 
 app.get("/team/getTeamMember", async (req, res) => {
+  log.info("/team/getTeamMember", log.methodStart);
   let cognitoIdentityId =
     req.apiGateway.event.requestContext.identity.cognitoIdentityId;
-  dbService.getTeamMemberDetails(cognitoIdentityId)
-     .then((results) => {
-       res.send(results);
-     })
-     .catch((error) => res.send(error));
- });
+    console.log("cognitoIdentityId", cognitoIdentityId)
+  dbService
+    .getTeamMemberDetails(cognitoIdentityId)
+    .then((results) => {
+      res.send(results);
+      log.info("/team/getTeamMember", log.methodStart);
+    })
+    .catch((error) => {
+      log.error(
+        "/team/getTeamMember",
+        "Error in getTeamMember API " + error.message
+      );
+      res.send(error);
+      log.info("/team/getTeamMember", log.methodEnd);
+    });
+});
 
 app.get("/team/getMonthlyRisk/:teamId", async (req, res) => {
+  log.info("/team/getMonthlyRisk/:teamId", log.methodStart);
   let nowdate = new Date();
   let monthStartDay = new Date(nowdate.getFullYear(), nowdate.getMonth(), 1);
   let monthEndDay = new Date(nowdate.getFullYear(), nowdate.getMonth() + 1, 0);
-  riskCalculation.getMonthlyRisk(req.params, monthStartDay, monthEndDay)
-     .then((results) => {
-       res.send(results);
-     })
-     .catch((error) => res.send(error));
- });
+  riskCalculation
+    .getMonthlyRisk(req.params, monthStartDay, monthEndDay)
+    .then((results) => {
+      res.send(results);
+      log.info("/team/getMonthlyRisk/:teamId", log.methodEnd);
+    })
+    .catch((error) => {
+      log.error(
+        "/team/getMonthlyRisk/:teamId",
+        "Error in getMonthlyRisk API " + error.message
+      );
+      res.send(error);
+      log.info("/team/getMonthlyRisk/:teamId", log.methodEnd);
+    });
+});
 
- app.get("/team/getPrevNextMonthlyRisk/:teamId/:monthStartDay/:monthEndDay", async (req, res) => {
-  riskCalculation.getPrevNextMonthlyRisk(req.params.teamId, req.params.monthStartDay, req.params.monthEndDay)
-     .then((results) => {
-       res.send(results);
-     })
-     .catch((error) => res.send(error));
- });
-
-//  app.get("/test", async (req, res) => {
-//    let teamId = 1;
-//   let nowdate = new Date();
-//   let monthStartDay = new Date(nowdate.getFullYear(), nowdate.getMonth(), 1);
-//   let monthEndDay = new Date(nowdate.getFullYear(), nowdate.getMonth() + 1, 0);
-//   let nextMonthStartDay = monthStartDay.toISOString();
-//   let nextMonthEndDay = monthEndDay.toISOString();
-
-//   riskCalculation.getMonthlyRisk(teamId, nextMonthStartDay, nextMonthEndDay)
-//      .then((results) => {
-//        res.send(results);
-//      })
-//      .catch((error) => res.send(error));
-//  });
-
-// // app.get("/test", async (req, res) => {
-//    let date = new Date();
-//    let leaveDate = new Date(date.setDate(21));
-//      let employeeId = [22,23,24,25];
-//     dbService.getEmployeeOnLeave(employeeId, leaveDate)
-//        .then((results) => {
-//          res.send(results);
-//        })
-//        .catch((error) => res.send(error));
-//    });
-
-
-
+app.get(
+  "/team/getPrevNextMonthlyRisk/:teamId/:monthStartDay/:monthEndDay",
+  async (req, res) => {
+    log.info("/team/getPrevNextMonthlyRisk/:teamId/:monthStartDay/:monthEndDay", log.methodStart);
+    riskCalculation
+      .getPrevNextMonthlyRisk(
+        req.params.teamId,
+        req.params.monthStartDay,
+        req.params.monthEndDay
+      )
+      .then((results) => {
+        res.send(results);
+        log.info("/team/getPrevNextMonthlyRisk/:teamId/:monthStartDay/:monthEndDay", log.methodEnd);
+      })
+      .catch((error) => {
+        log.error(
+          "/team/getPrevNextMonthlyRisk/:teamId/:monthStartDay/:monthEndDay",
+          "Error in getPrevNextMonthlyRisk API " + error.message
+        );
+        res.send(error);
+        log.info("/team/getPrevNextMonthlyRisk/:teamId/:monthStartDay/:monthEndDay", log.methodEnd);
+      });
+  }
+);
 
 app.listen(2000, () => console.log("listening to port 2000"));
 

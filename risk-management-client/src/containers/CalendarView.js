@@ -21,39 +21,24 @@ export default class calendar extends React.Component {
     window.location = "/teamsInfo";
   };
 
-  componentDidMount() {
-    console.log(this.state.monthCount);
-  }
-
   async componentWillMount() {
     try {
-      console.log("inside try catch");
-      console.log("idd in mount fun", this.state.id)
       let response = await API.get(
         "riskmanagement",
         "/team/getMonthlyRisk/" + this.state.id
       );
-      console.log("response is", response);
       this.setState({ monthlyRisk: response });
       this.setState({ isLoading: false });
-      console.log("isLoading beore setting state in cdm", this.state.isLoading);
-      console.log("state is", this.state.monthlyRisk);
-      console.log(
-        "this.state.monthlyRisk",
-        this.state.monthlyRisk[parseInt(this.state.id)]
-      );
     } catch (err) {
       console.error(err.message);
     }
   }
 
-   onNext = async (event) => {
+  onNext = async (event) => {
     let currentDate = new Date();
     let tempMonthCount = this.state.monthCount + 1;
-    console.log("tempMonthCount", tempMonthCount);
     this.setState({ monthCount: tempMonthCount });
     currentDate.setMonth(tempMonthCount);
-    console.log("nextMonthDate", currentDate);
     let nextMonthStartDay = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
@@ -64,51 +49,34 @@ export default class calendar extends React.Component {
       currentDate.getMonth() + 1,
       0
     );
-    console.log("nextMonthStartDay", nextMonthStartDay)
-    console.log("nextMonthEndDay", nextMonthEndDay)
-
     let monthStartDay = nextMonthStartDay.toISOString();
     let monthEndDay = nextMonthEndDay.toISOString();
-
-    console.log("monthStartDay iso", monthStartDay)
-    console.log("monthEndDay iso", monthEndDay)
-
-
     try {
-
-        console.log("inside try catch of next");
-        // console.log("id in next ffun", this.state.id)
-        // this.setState({ isLoading: true });
-        // console.log("isloading is seted to true in next", this.state.isLoading)
-
-        let response = await API.get(
-          "riskmanagement",
-          "/team/getPrevNextMonthlyRisk/" + this.state.id + "/" + monthStartDay +"/"+ monthEndDay
-        );
-        console.log("response is", response);
-        this.setState({ monthlyRisk: response });
-        // this.setState({ isLoading: false });
-        // console.log("isLoading beore setting state in next", this.state.isLoading);
-        console.log("onnext state is", this.state.monthlyRisk);
-        // console.log(
-        //   "this.state.monthlyRisk",
-        //   this.state.monthlyRisk[parseInt(this.state.id)]
-        // );
-      } catch (err) {
-        console.error(err.message);
-      }
+      let response = await API.get(
+        "riskmanagement",
+        "/team/getPrevNextMonthlyRisk/" +
+          this.state.id +
+          "/" +
+          monthStartDay +
+          "/" +
+          monthEndDay
+      );
+      var jsonData = JSON.stringify(response);
+      console.log("response is", jsonData);
+      const monthlyRisk = this.setMontlyRisk(response);
+      this.setState({ monthlyRisk: monthlyRisk });
+    } catch (err) {
+      console.error(err.message);
+    }
 
     this.calendar.current._calendarApi.next();
-
   };
 
   onPrev = async (event) => {
     let currentDate = new Date();
     let tempMonthCount = this.state.monthCount - 1;
-    console.log("tempMonthCount", tempMonthCount);
     this.setState({ monthCount: tempMonthCount });
     currentDate.setMonth(tempMonthCount);
-    console.log("nextMonthDate", currentDate);
     let prevMonthStartDay = new Date(
       currentDate.getFullYear(),
       currentDate.getMonth(),
@@ -119,63 +87,56 @@ export default class calendar extends React.Component {
       currentDate.getMonth() + 1,
       0
     );
-    console.log("prevMonthStartDay", prevMonthStartDay)
-    console.log("prevMonthEndDay", prevMonthEndDay)
-
     let monthStartDay = prevMonthStartDay.toISOString();
     let monthEndDay = prevMonthEndDay.toISOString();
-
-    console.log("monthStartDay iso", monthStartDay)
-    console.log("monthEndDay iso", monthEndDay)
-
-
     try {
-
-        console.log("inside try catch of prev");
-        // console.log("id in prev ffun", this.state.id)
-        this.setState({ isLoading: true });
-        console.log("isloading is seted to true in prev", this.state.isLoading)
-
-        let response = await API.get(
-          "riskmanagement",
-          "/team/getPrevNextMonthlyRisk/" + this.state.id + "/" + monthStartDay +"/"+ monthEndDay
-        );
-        console.log("response is", response);
-        this.setState({ monthlyRisk: response });
-        this.setState({ isLoading: false });
-        console.log("isLoading beore setting state in prev", this.state.isLoading);
-        console.log("onprev state is", this.state.monthlyRisk);
-        // console.log(
-        //   "this.state.monthlyRisk",
-        //   this.state.monthlyRisk[parseInt(this.state.id)]
-        // );
-      } catch (err) {
-        console.error(err.message);
-      }
+      let response = await API.get(
+        "riskmanagement",
+        "/team/getPrevNextMonthlyRisk/" +
+          this.state.id +
+          "/" +
+          monthStartDay +
+          "/" +
+          monthEndDay
+      );
+      console.log("response is", response);
+      const monthlyRisk = this.setMontlyRisk(response);
+      this.setState({ monthlyRisk: monthlyRisk });
+    } catch (err) {
+      console.error(err.message);
+    }
 
     this.calendar.current._calendarApi.prev();
-   
   };
 
-
-//   onPrev = (event) => {
-//     console.log("onPrev Event ", event);
-//     this.calendar.current._calendarApi.prev();
-//   };
+  setMontlyRisk = (response) => {
+    const currentRisks = this.convertToRiskObject(this.state.monthlyRisk);
+    const newRisk = this.convertToRiskObject(response);
+    const mergedRisks = { ...currentRisks, ...newRisk };
+    const date = Object.keys(mergedRisks);
+    const monthRisk = Object.values(mergedRisks);
+    return { [this.state.id]: { date, monthRisk } };
+  };
+  convertToRiskObject = (response) => {
+    const dates = response[this.state.id].date;
+    const monthlyRisks = response[this.state.id].monthRisk;
+    let riskObj = {};
+    if (dates.length === monthlyRisks.length) {
+      dates.forEach((date, i) => {
+        riskObj = { ...riskObj, [date]: monthlyRisks[i] };
+      });
+    }
+    return riskObj;
+  };
 
   handleDateClick = (info) => {
-    // bind with an arrow function
     var date = info.dateStr;
-    alert("The current date of the calendar is " + date);
-    console.log(info);
-    info.dayEl.style.backgroundColor = "red";
+    console.log("date", date);
+    window.location = `/leaveDetails/${this.state.id}/${date}`;
   };
 
-
   render() {
-    // console.log("inssides next fun", this.state.monthCount);
 
-    // if (Object.keys(this.state.monthlyRisk).length !== 0) {
     if (this.state.isLoading === false) {
       return (
         <div>
@@ -186,9 +147,9 @@ export default class calendar extends React.Component {
             ref={this.calendar}
             plugins={[dayGridPlugin, interactionPlugin]}
             dateClick={this.handleDateClick}
+            showNonCurrentDates={false}
+            fixedWeekCount={false}
             customButtons={{
-              // overwrite default btn functions
-              // key is btn name used in header toolbar
               next: {
                 text: "Next",
                 click: this.onNext,
@@ -200,6 +161,10 @@ export default class calendar extends React.Component {
             }}
             views
             initialView="dayGridMonth"
+            visibleRange={{
+              start: "2021-04-01",
+              end: "2021-04-29",
+            }}
             dayCellDidMount={(e) => {
               let dateIs = new Date(e.date);
               let d = new Date(dateIs),
@@ -211,6 +176,7 @@ export default class calendar extends React.Component {
               if (day.length < 2) day = "0" + day;
 
               var formattedDate = [year, month, day].join("-");
+              console.log("formattedDate", formattedDate);
               for (
                 let index = 0;
                 index <
@@ -241,5 +207,5 @@ export default class calendar extends React.Component {
       );
     }
   }
-
- }
+ 
+}

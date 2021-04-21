@@ -37,5 +37,10 @@ functions:
           method: POST
           cors: true
           authorizer: aws_iam
+      - http:
+          path: /leave/{proxy+}
+          method: ANY
+          cors: true
+          authorizer: aws_iam
           
           

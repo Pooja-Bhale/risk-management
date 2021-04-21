@@ -8,6 +8,8 @@ import { onError } from "../libs/errorLib";
 import { Auth } from "aws-amplify";
 import API from "@aws-amplify/api";
 import "./Signup.css";
+// import Formik from "formik";
+// import * as Yup from "yup";
 
 export default function Signup() {
   const [fields, handleFieldChange] = useFormFields({
@@ -71,9 +73,8 @@ export default function Signup() {
           email: fields.email,
         };
         return API.post("riskmanagement", "/employee/addEmployee", {
-          body: body
-      });
-        
+          body: body,
+        });
       } catch (err) {
         console.error(err.message);
       }
@@ -111,6 +112,14 @@ export default function Signup() {
 
   function renderForm() {
     return (
+      // <Formik initialValues={{ firstName:"", lastName:""}}>
+      //    {( {values,
+      //     errors,
+      //     touched,
+      //     handleChange,
+      //     handleBlur,
+      //     handleSubmit,
+      //     isSubmitting }) => (
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="firstName" size="lg">
           <Form.Label>First Name *</Form.Label>
@@ -172,6 +181,8 @@ export default function Signup() {
           <a href="/login"> Sign in</a>
         </p>
       </Form>
+      // )}
+      // </Formik>
     );
   }
 

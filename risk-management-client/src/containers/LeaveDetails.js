@@ -2,44 +2,45 @@ import React, { Fragment, useState, useEffect } from "react";
 import API from "@aws-amplify/api";
 import { useParams } from "react-router";
 import Button from "react-bootstrap/Button";
+import "./LeaveDetails.css";
+
 
 
 var LeaveDetails = () => {
-  let { teamId } = useParams();
+  let { teamId, date } = useParams();
 
-    var [teamDetail, setTeamDetail] = useState([]);
+    var [leaveDetail, setLeveDetail] = useState([]);
     const handleClose = () => {
-      window.location = "/teamsInfo";
+      window.history.back();
     };
 
-    var getTeamDetails = async () => {
+    var getLeaveDetails = async () => {
       try {
-        let response = await API.get("riskmanagement", `/team/getTeamDetails/${teamId}`);
-        setTeamDetail(response);
+        let response = await API.get("riskmanagement", `/leave/getLeaveDetails/${teamId}/${date}`);
+        setLeveDetail(response);
       } catch (err) {
         console.error(err.message);
       }
     };
-   
+   console.log("leaveDetail", leaveDetail)
     
 
     useEffect(() => {
-      getTeamDetails();
+      getLeaveDetails();
     }, []);
   return (
     <Fragment>
-      <h2>Team Details</h2>
+      <h2>Leave Details</h2>
       <hr />
-      <div>
+      <div className="leaveDetails">
         <dl>
-          <dt>Team Name</dt>
-          <dd>{teamName[0]}</dd>
-          <dt>Threshold</dt>
-          <dd>{teamThreshold[0]}</dd>
-          <dt>Team Member</dt>
-          {teamDetail.map((team) => (
-          <dd key={team.employeeId}>{team.firstName} {team.lastName}</dd>
+          <dt>Date</dt>
+          <dd>{date}</dd>
+          <dt>Employee on Leave</dt>
+          {leaveDetail.map((employee) => (
+          <dd key={employee.employeeId}>{employee.firstName} {employee.lastName}</dd>
           ))}
+         
         </dl>
         <Button variant="secondary" onClick={handleClose}>
             Close
