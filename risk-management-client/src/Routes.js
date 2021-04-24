@@ -8,6 +8,8 @@ import NotFound from "./containers/NotFound";
 import TeamDetails from "./containers/TeamDetails";
 import Calendar from "./containers/CalendarView";
 import LeaveDetails from "./containers/LeaveDetails";
+import NewUser from "./containers/NewUser";
+
 
 
 export default function Routes() {
@@ -15,6 +17,9 @@ export default function Routes() {
     <Switch>
       <Route exact path="/">
         <Home />
+      </Route>
+      <Route exact path="/newUser">
+        <NewUser />
       </Route>
       <Route exact path="/login">
         <Login />

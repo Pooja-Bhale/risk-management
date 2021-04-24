@@ -22,12 +22,16 @@ export default class calendar extends React.Component {
   };
 
   async componentWillMount() {
+    console.log("componentWillMount")
+    console.log("id iss", this.state.id)
     try {
       let response = await API.get(
         "riskmanagement",
         "/team/getMonthlyRisk/" + this.state.id
       );
+      console.log(" response in will mount", response)
       this.setState({ monthlyRisk: response });
+      console.log("monthlyRisk",this.state.monthlyRisk)
       this.setState({ isLoading: false });
     } catch (err) {
       console.error(err.message);

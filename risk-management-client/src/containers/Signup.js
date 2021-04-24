@@ -65,7 +65,7 @@ export default function Signup() {
       await Auth.signIn(fields.email, fields.password);
 
       userHasAuthenticated(true);
-      history.push("/");
+      history.push("/newUser");
       try {
         const body = {
           firstName: fields.firstName,
@@ -75,7 +75,7 @@ export default function Signup() {
         return API.post("riskmanagement", "/employee/addEmployee", {
           body: body,
         });
-      } catch (err) {
+      } catch (err) { 
         console.error(err.message);
       }
     } catch (e) {
@@ -112,14 +112,6 @@ export default function Signup() {
 
   function renderForm() {
     return (
-      // <Formik initialValues={{ firstName:"", lastName:""}}>
-      //    {( {values,
-      //     errors,
-      //     touched,
-      //     handleChange,
-      //     handleBlur,
-      //     handleSubmit,
-      //     isSubmitting }) => (
       <Form onSubmit={handleSubmit}>
         <Form.Group controlId="firstName" size="lg">
           <Form.Label>First Name *</Form.Label>
@@ -181,8 +173,6 @@ export default function Signup() {
           <a href="/login"> Sign in</a>
         </p>
       </Form>
-      // )}
-      // </Formik>
     );
   }
 

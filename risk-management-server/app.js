@@ -113,45 +113,71 @@ app.get("/risk/getWeeklyRisk", async (req, res) => {
     });
 });
 
-app.get("/risk/getPreviousNextDayRisk/:teamId/:date", async (req, res) => {
-  log.info("/risk/getPreviousNextDayRisk/:teamId/:date", log.methodStart);
+app.get("/risk/getPreviousNextDayRisk/:date", async (req, res) => {
+  log.info("/risk/getPreviousNextDayRisk/:date", log.methodStart);
+  let cognitoIdentityId =
+    req.apiGateway.event.requestContext.identity.cognitoIdentityId;
+  console.log("cognitoIdentityId", cognitoIdentityId);
+  console.log("date is api msg", req.params);
   riskCalculation
-    .getPreviousNextDayRisk(req.params.teamId, req.params.date)
+    .getPreviousNextDayRisk(cognitoIdentityId, req.params)
     .then((results) => {
       res.send(results);
-      log.info("/risk/getPreviousNextDayRisk/:teamId/:date", log.methodEnd);
+      log.info("/risk/getPreviousNextDayRisk/:date", log.methodEnd);
     })
     .catch((error) => {
       log.error(
-        "/risk/getPreviousNextDayRisk/:teamId/:date",
+        "/risk/getPreviousNextDayRisk/:date",
         "Error in getPreviousNextDayRisk API " + error.message
       );
       res.send(error);
-      log.info("/risk/getPreviousNextDayRisk/:teamId/:date", log.methodEnd);
+      log.info("/risk/getPreviousNextDayRisk/:date", log.methodEnd);
     });
 });
 
 app.get(
-  "/risk/getPreviousNextWeekRisk/:teamId/:startDateOfWeek/:endDateOfWeek",
+  "/risk/getPreviousNextWeekRisk/:startDateOfWeek/:endDateOfWeek",
   async (req, res) => {
-    log.info("/risk/getPreviousNextWeekRisk/:teamId/:startDateOfWeek/:endDateOfWeek", log.methodStart);
+    log.info(
+      "/risk/getPreviousNextWeekRisk/:startDateOfWeek/:endDateOfWeek",
+      log.methodStart
+    );
+    // let date = new Date();
+    // let startDay =
+    //   date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1);
+    // let startDateOfWeek = new Date(date.setDate(startDay));
+    // let start = startDateOfWeek.toISOString();
+
+    // let lastday = date.getDate() - (date.getDay() - 1) + 6;
+    // let endDateOfWeek = new Date(date.setDate(lastday));
+    // let end = endDateOfWeek.toISOString();
+    let cognitoIdentityId =
+      req.apiGateway.event.requestContext.identity.cognitoIdentityId;
+    console.log("cognitoIdentityId", cognitoIdentityId);
     riskCalculation
+    // .getPreviousNextWeekRisk("ap-south-1:de248c54-4d9b-4bc1-92d3-3c2eee10ea43", start, end)
       .getPreviousNextWeekRisk(
-        req.params.teamId,
+        cognitoIdentityId,
         req.params.startDateOfWeek,
         req.params.endDateOfWeek
       )
       .then((results) => {
         res.send(results);
-        log.info("/risk/getPreviousNextWeekRisk/:teamId/:startDateOfWeek/:endDateOfWeek", log.methodEnd);
+        log.info(
+          "/risk/getPreviousNextWeekRisk/:startDateOfWeek/:endDateOfWeek",
+          log.methodEnd
+        );
       })
       .catch((error) => {
         log.error(
-          "/risk/getPreviousNextWeekRisk/:teamId/:startDateOfWeek/:endDateOfWeek",
+          "/risk/getPreviousNextWeekRisk/:startDateOfWeek/:endDateOfWeek",
           "Error in getPreviousNextWeekRisk API " + error.message
         );
         res.send(error);
-        log.info("/risk/getPreviousNextWeekRisk/:teamId/:startDateOfWeek/:endDateOfWeek", log.methodEnd);
+        log.info(
+          "/risk/getPreviousNextWeekRisk/:startDateOfWeek/:endDateOfWeek",
+          log.methodEnd
+        );
       });
   }
 );
@@ -160,7 +186,7 @@ app.get("/team/getTeamInfo", async (req, res) => {
   log.info("/team/getTeamInfo", log.methodStart);
   let cognitoIdentityId =
     req.apiGateway.event.requestContext.identity.cognitoIdentityId;
-    console.log("cognitoIdentityId", cognitoIdentityId)
+  console.log("cognitoIdentityId", cognitoIdentityId);
 
   dbService
     .getTeamsInfo(cognitoIdentityId)
@@ -200,7 +226,7 @@ app.get("/team/getTeamMember", async (req, res) => {
   log.info("/team/getTeamMember", log.methodStart);
   let cognitoIdentityId =
     req.apiGateway.event.requestContext.identity.cognitoIdentityId;
-    console.log("cognitoIdentityId", cognitoIdentityId)
+  console.log("cognitoIdentityId", cognitoIdentityId);
   dbService
     .getTeamMemberDetails(cognitoIdentityId)
     .then((results) => {
@@ -241,7 +267,10 @@ app.get("/team/getMonthlyRisk/:teamId", async (req, res) => {
 app.get(
   "/team/getPrevNextMonthlyRisk/:teamId/:monthStartDay/:monthEndDay",
   async (req, res) => {
-    log.info("/team/getPrevNextMonthlyRisk/:teamId/:monthStartDay/:monthEndDay", log.methodStart);
+    log.info(
+      "/team/getPrevNextMonthlyRisk/:teamId/:monthStartDay/:monthEndDay",
+      log.methodStart
+    );
     riskCalculation
       .getPrevNextMonthlyRisk(
         req.params.teamId,
@@ -250,7 +279,10 @@ app.get(
       )
       .then((results) => {
         res.send(results);
-        log.info("/team/getPrevNextMonthlyRisk/:teamId/:monthStartDay/:monthEndDay", log.methodEnd);
+        log.info(
+          "/team/getPrevNextMonthlyRisk/:teamId/:monthStartDay/:monthEndDay",
+          log.methodEnd
+        );
       })
       .catch((error) => {
         log.error(
@@ -258,7 +290,10 @@ app.get(
           "Error in getPrevNextMonthlyRisk API " + error.message
         );
         res.send(error);
-        log.info("/team/getPrevNextMonthlyRisk/:teamId/:monthStartDay/:monthEndDay", log.methodEnd);
+        log.info(
+          "/team/getPrevNextMonthlyRisk/:teamId/:monthStartDay/:monthEndDay",
+          log.methodEnd
+        );
       });
   }
 );

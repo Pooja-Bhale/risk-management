@@ -12,27 +12,19 @@ const AddLeave = () => {
   var [isLoading, setIsLoading] = useState(false);
   var [teamMember, setTeamMember] = useState([]);
   var [fields, handleFieldChange] = useFormFields({
-    // employeeId: "",
     startDate: "",
     endDate: "",
   });
 
   var [employeeId, setEmployeeId] = useState()
-  console.log(employeeId,"*****")
-
-  console.log("fields aare", fields);
   var handleClose = () => setShow(false);
   var handleShow = () => setShow(true);
 
   useEffect(() => {
     var getTeamMember = async () => {
-      console.log("function start");
       try {
-        console.log("next is api call");
         let response = await API.get("riskmanagement", "/team/getTeamMember");
         setTeamMember(response);
-        console.log("api is called");
-        console.log("teamMember ::::", teamMember);
       } catch (err) {
         console.error(err.message);
       }
@@ -53,8 +45,6 @@ const AddLeave = () => {
         startDate: fields.startDate,
         endDate: fields.endDate === "" ? fields.startDate : fields.endDate,
       };
-      console.log("in handle submit fun");
-      console.log("body", body);
       let response = await API.post("riskmanagement", "/leave/addLeave", {
         body: body,
       });
@@ -83,30 +73,9 @@ const AddLeave = () => {
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
-            {/* <Form.Group controlId="employeeId" size="lg">
-              <Form.Label>Employee Name *</Form.Label>
-              <Form.Control
-                as="select"
-                value={fields.employeeId}
-                onChange={handleFieldChange}
-              >
-                <option>Select</option>
-                {teamMember.map((teamMember) => (
-                  <option
-                    key={teamMember.employeeId}
-                    value={teamMember.employeeId}
-                  >
-                    {teamMember.firstName}
-                  </option>
-                ))}
-              </Form.Control>
-            </Form.Group> */}
-
             <Form.Group controlId="employeeId" size="lg">
               <Form.Label>Employee Name *</Form.Label>
               <Select
-                // value={teamMember.filter(({ value }) => value === teamMember.value)}
-                // onChange={({ value }) => setEmployeeId({ value })}
                 value={teamMember.label}
                 onChange={(option) => setEmployeeId(option.value) }
                 options={teamMember}
@@ -142,9 +111,6 @@ const AddLeave = () => {
           >
             Save
           </LoaderButton>
-          {/* <Button variant="primary" onClick={handleClose}>
-            Save Changes
-          </Button> */}
         </Modal.Footer>
       </Modal>
     </>

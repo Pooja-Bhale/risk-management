@@ -17,6 +17,7 @@ try {
   console.error("Unable to connect to the database:", error);
 }
 
+// Employee table
 const Employee = sequelize.define("Pooja_Employee", {
   employeeId: {
     type: DataTypes.INTEGER,
@@ -44,6 +45,7 @@ const Employee = sequelize.define("Pooja_Employee", {
   },
 });
 
+// Team table
 const Team = sequelize.define("Pooja_Team", {
   teamId: {
     type: DataTypes.INTEGER,
@@ -61,6 +63,7 @@ const Team = sequelize.define("Pooja_Team", {
   },
 });
 
+// Leave table
 const Leave = sequelize.define("Pooja_Leave", {
   leaveId: {
     type: DataTypes.INTEGER,
@@ -100,6 +103,7 @@ const Leave = sequelize.define("Pooja_Leave", {
 });
 Leave.belongsTo(Employee, { foreignKey: "employeeId" });
 
+// TeamMember table
 const TeamMember = sequelize.define("Pooja_TeamMember", {
   memberId: {
     type: DataTypes.INTEGER,
@@ -129,7 +133,7 @@ const TeamMember = sequelize.define("Pooja_TeamMember", {
 TeamMember.belongsTo(Employee, { foreignKey: "employeeId" });
 TeamMember.belongsTo(Team, { foreignKey: "teamId" });
 
-
+// TeamManager table
 const TeamManager = sequelize.define("Pooja_TeamManager", {
   managerId: {
     type: DataTypes.INTEGER,
