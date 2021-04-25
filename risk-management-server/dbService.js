@@ -384,7 +384,7 @@ async function getTeamMemberDetails(cognitoId) {
     }
   }
   let distinct = (value, index, self) => {
-    return self.indexOf(value) === index;
+    return self.indexOf(value) === index; 
   };
   let distinctTeamMemberIdArray = teamMemberIdArray.filter(distinct);
 

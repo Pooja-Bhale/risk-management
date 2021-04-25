@@ -49,7 +49,7 @@ const AddLeave = () => {
         body: body,
       });
       console.log(response);
-      window.location = "/teamsInfo";
+      window.history.go(-0);
     } catch (err) {
       console.error(err.message);
       setIsLoading(false);

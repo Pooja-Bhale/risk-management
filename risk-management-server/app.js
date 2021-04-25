@@ -51,6 +51,25 @@ app.post("/leave/addLeave", async (req, res) => {
     });
 });
 
+app.get("/team/getTeamName/:teamId", async (req, res) => {
+  log.info("/team/getTeamName/:teamId", log.methodStart);
+  dbService
+    .getTeamDetails(req.params.teamId)
+    .then((results) => {
+      res.send(results);
+      log.info("/team/getTeamName/:teamId", log.methodEnd);
+    })
+    .catch((error) => {
+      log.error(
+        "/team/getTeamName/:teamId",
+        "Error in getTeamName API " + error.message
+      );
+      res.send(error);
+      log.info("/team/getTeamName/:teamId", log.methodEnd);
+    });
+});
+
+
 app.get("/leave/getLeaveDetails/:teamId/:date", async (req, res) => {
   log.info("/leave/getLeaveDetails/:teamId/:date", log.methodStart);
   dbService
@@ -142,20 +161,10 @@ app.get(
       "/risk/getPreviousNextWeekRisk/:startDateOfWeek/:endDateOfWeek",
       log.methodStart
     );
-    // let date = new Date();
-    // let startDay =
-    //   date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1);
-    // let startDateOfWeek = new Date(date.setDate(startDay));
-    // let start = startDateOfWeek.toISOString();
-
-    // let lastday = date.getDate() - (date.getDay() - 1) + 6;
-    // let endDateOfWeek = new Date(date.setDate(lastday));
-    // let end = endDateOfWeek.toISOString();
     let cognitoIdentityId =
       req.apiGateway.event.requestContext.identity.cognitoIdentityId;
     console.log("cognitoIdentityId", cognitoIdentityId);
     riskCalculation
-    // .getPreviousNextWeekRisk("ap-south-1:de248c54-4d9b-4bc1-92d3-3c2eee10ea43", start, end)
       .getPreviousNextWeekRisk(
         cognitoIdentityId,
         req.params.startDateOfWeek,
