@@ -18,8 +18,7 @@ export default class calendar extends React.Component {
       monthCount: today.getMonth(),
       id: props.match.params.teamId,
       monthlyRisk: {},
-      teamDetails: {},
-      teamsList: [],
+      teamName: {},
       teamsDetails: {},
       redirect: { redirect: false, to: "" },
       selectedTeam: {},
@@ -40,7 +39,6 @@ export default class calendar extends React.Component {
         "/team/getMonthlyRisk/" + this.state.id
       );
       this.setState({ monthlyRisk: response });
-      console.log("response is monthlyRisk in get month risk", this.state.monthlyRisk);
       this.setState({ isLoading: false });
     } catch (err) {
       console.error(err.message);
@@ -53,7 +51,7 @@ export default class calendar extends React.Component {
         "riskmanagement",
         "/team/getTeamName/" + this.state.id
       );
-      this.setState({ teamDetails: response });
+      this.setState({ teamName: response });
     } catch (err) {
       console.error(err.message);
     }
@@ -62,10 +60,9 @@ export default class calendar extends React.Component {
   async getTeams() {
     try {
       let response = await API.get("riskmanagement", "/team/getTeamInfo");
-      this.setState({ teamsList: response });
-      const teamsDetail = response.map((d) => ({
-        value: d.teamId,
-        label: d.teamName,
+      const teamsDetail = response.map((teamsDetail) => ({
+        value: teamsDetail.teamId,
+        label: teamsDetail.teamName,
       }));
       this.setState({ teamsDetails: teamsDetail });
       return response;
@@ -133,7 +130,6 @@ export default class calendar extends React.Component {
       console.log("response is", jsonData);
       const monthlyRisk = this.setMontlyRisk(response);
       this.setState({ monthlyRisk: monthlyRisk });
-      console.log("response is monthlyRisk in next", this.state.monthlyRisk);
 
     } catch (err) {
       console.error(err.message);
@@ -172,7 +168,6 @@ export default class calendar extends React.Component {
 
       const monthlyRisk = this.setMontlyRisk(response);
       this.setState({ monthlyRisk: monthlyRisk });
-      console.log("response is monthlyRisk in pre", this.state.monthlyRisk);
     } catch (err) {
       console.error(err.message);
     }
@@ -238,7 +233,7 @@ export default class calendar extends React.Component {
     if (this.state.isLoading === false) {
       return (
         <div>
-          <h1>{this.state.teamDetails.teamName}</h1>
+          <h1>{this.state.teamName.teamName}</h1>
           <p>Select team name...</p>
           <Select
             placeholder="Select team..."

@@ -9,7 +9,7 @@ import "./LeaveDetails.css";
 var LeaveDetails = () => {
   let { teamId, date } = useParams();
 
-    var [leaveDetail, setLeveDetail] = useState([]);
+    var [employeeLeaveDetail, setEmployeeLeaveDetail] = useState([]);
     const handleClose = () => {
       window.history.back();
     };
@@ -17,12 +17,12 @@ var LeaveDetails = () => {
     var getLeaveDetails = async () => {
       try {
         let response = await API.get("riskmanagement", `/leave/getLeaveDetails/${teamId}/${date}`);
-        setLeveDetail(response);
+        setEmployeeLeaveDetail(response);
       } catch (err) {
         console.error(err.message);
       }
     };
-   console.log("leaveDetail", leaveDetail)
+   console.log("leaveDetail", employeeLeaveDetail)
     
 
     useEffect(() => {
@@ -37,7 +37,7 @@ var LeaveDetails = () => {
           <dt>Date</dt>
           <dd>{date}</dd>
           <dt>Employee on Leave</dt>
-          {leaveDetail.map((employee) => (
+          {employeeLeaveDetail.map((employee) => (
           <dd key={employee.employeeId}>{employee.firstName} {employee.lastName}</dd>
           ))}
          

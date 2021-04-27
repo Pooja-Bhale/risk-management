@@ -7,6 +7,7 @@ import "./TeamDetails.css";
 var TeamDetails = () => {
   let { teamId } = useParams();
   var [teamDetail, setTeamDetail] = useState([]);
+  var [index, setIndex] = useState(0);
   const handleClose = () => {
     window.location = "/teamsInfo";
   };
@@ -39,9 +40,9 @@ var TeamDetails = () => {
       <div>
         <dl>
           <dt>Team Name</dt>
-          <dd>{teamName[0]}</dd>
+          <dd>{teamName[index]}</dd>
           <dt>Threshold</dt>
-          <dd>{teamThreshold[0]}</dd>
+          <dd>{teamThreshold[index]}</dd>
           <dt>Team Member</dt>
           {teamDetail.map((team) => (
             <dd key={team.employeeId}>

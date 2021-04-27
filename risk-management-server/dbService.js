@@ -395,11 +395,10 @@ async function getTeamMemberDetails(cognitoId) {
     teamMemberDetailsArray.push(teamMemberDetails);
   }
 
-  const employeeDetails = teamMemberDetailsArray.map((d) => ({
-    value: d.employeeId,
-    label: d.firstName + " " + d.lastName,
+  const employeeDetails = teamMemberDetailsArray.map((teamMemberDetails) => ({
+    value: teamMemberDetails.employeeId,
+    label: teamMemberDetails.firstName + " " + teamMemberDetails.lastName,
   }));
-  console.log("employeeDetails", employeeDetails);
   log.info("dbService|getTeamMemberDetails", log.methodEnd);
 
   return employeeDetails;
@@ -485,7 +484,6 @@ function getEmployeeIdOnLeaveEmployee(teamMemberIdArray, dateIs) {
             return parseInt(employeeId["employeeId"]);
           });
           resolve(employeeldArray);
-          console.log("res is", results);
         } else {
           reject("EmployeeId not found!!");
         }

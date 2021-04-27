@@ -6,7 +6,6 @@ const log = new Logger();
 // Input is cognitoId, date
 // Output is array of teamId, date, risk(true or false)
   async function getDayRisk(cognitoId, date) {
-    console.log("input date is", date)
     log.info("riskCalculation|getDayRisk", log.methodStart);
     // get teams info for logged in user
     let teamInfo = await dbService.getTeamsInfo(cognitoId);
@@ -38,10 +37,8 @@ const log = new Logger();
       let employeeIdArray = employeeId.map(function (employeeId) {
         return employeeId["employeeId"];
       });
-      console.log("employeeOnLeaveCountArray", employeeOnLeaveCountArray)
 
       let dateIs = new Date(date);
-      console.log("date is in date dataa type", dateIs)
       let d = new Date(dateIs),
         month = "" + (d.getMonth() + 1),
         day = "" + d.getDate(),
@@ -51,7 +48,6 @@ const log = new Logger();
       if (day.length < 2) day = "0" + day;
 
       var formattedDate = [year, month, day].join("-");
-      console.log("formattedDate", formattedDate)
 
       // get employee on leave count
       let employeeOnLeaveCount = await dbService.getEmployeeOnLeave(
@@ -61,7 +57,6 @@ const log = new Logger();
       employeeOnLeaveCountArray.push(employeeOnLeaveCount);
     }
 
-    console.log("employeeOnLeaveCountArray", employeeOnLeaveCountArray)
     let percentOfUnavailableEmployeeArray = new Array();
 
     // calculate percent of unavailable employee of team 
@@ -71,7 +66,6 @@ const log = new Logger();
       percentOfUnavailableEmployeeArray.push(percentOfUnavailableEmployee);
     }
 
-    console.log("percentOfUnavailableEmployeeArray", percentOfUnavailableEmployeeArray)
     let riskArray = new Array();
     for (
       let index = 0;
@@ -97,12 +91,10 @@ const log = new Logger();
     }
     log.info("riskCalculation|getDayRisk", log.methodEnd);
 
-    console.log("riskArray", riskArray)
     return riskArray;
   }
 
 async function getPreviousNextDayRisk(cognitoId, date) {
-  console.log("input date is", date)
   log.info("riskCalculation|getDayRisk", log.methodStart);
   // get teams info for logged in user
   let teamInfo = await dbService.getTeamsInfo(cognitoId);
@@ -134,10 +126,8 @@ async function getPreviousNextDayRisk(cognitoId, date) {
     let employeeIdArray = employeeId.map(function (employeeId) {
       return employeeId["employeeId"];
     });
-    console.log("employeeOnLeaveCountArray", employeeOnLeaveCountArray)
 
     let dateIs = new Date(date.date);
-    console.log("date is in date dataa type", dateIs)
     let d = new Date(dateIs),
       month = "" + (d.getMonth() + 1),
       day = "" + d.getDate(),
@@ -147,7 +137,6 @@ async function getPreviousNextDayRisk(cognitoId, date) {
     if (day.length < 2) day = "0" + day;
 
     var formattedDate = [year, month, day].join("-");
-    console.log("formattedDate", formattedDate)
 
     // get employee on leave count
     let employeeOnLeaveCount = await dbService.getEmployeeOnLeave(
@@ -157,7 +146,6 @@ async function getPreviousNextDayRisk(cognitoId, date) {
     employeeOnLeaveCountArray.push(employeeOnLeaveCount);
   }
 
-  console.log("employeeOnLeaveCountArray", employeeOnLeaveCountArray)
   let percentOfUnavailableEmployeeArray = new Array();
 
   // calculate percent of unavailable employee of team 
@@ -167,7 +155,6 @@ async function getPreviousNextDayRisk(cognitoId, date) {
     percentOfUnavailableEmployeeArray.push(percentOfUnavailableEmployee);
   }
 
-  console.log("percentOfUnavailableEmployeeArray", percentOfUnavailableEmployeeArray)
   let riskArray = new Array();
   for (
     let index = 0;
@@ -193,7 +180,6 @@ async function getPreviousNextDayRisk(cognitoId, date) {
   }
   log.info("riskCalculation|getDayRisk", log.methodEnd);
 
-  console.log("riskArray", riskArray)
   return riskArray;
 }
 
@@ -375,8 +361,6 @@ async function getDayRiskForOneTeam(teamId, date) {
 // Output is object of teamId, array of date, array of risk(true or false)
 async function getMonthlyRisk(teamId, monthStartDay, monthEndDay) {
   log.info("riskCalculation|getMonthlyRisk", log.methodStart);
-  console.log("getMonthlyRisk")
-  console.log("teamId, monthStartDay, monthEndDay", teamId, monthStartDay, monthEndDay)
   let start = new Date(monthStartDay);
   let end = new Date(monthEndDay);
   let monthDateArray = new Array();
@@ -384,8 +368,6 @@ async function getMonthlyRisk(teamId, monthStartDay, monthEndDay) {
   for (let d = start; d <= end; d.setDate(d.getDate() + 1)) {
     monthDateArray.push(new Date(d));
   }
-
-  console.log("monthDateArray", monthDateArray)
 
   let monthlyRiskArray = new Array();
   for (let index = 0; index < monthDateArray.length; index++) {
@@ -396,7 +378,6 @@ async function getMonthlyRisk(teamId, monthStartDay, monthEndDay) {
     monthlyRiskArray.push(monthlylyRisk);
   }
 
-  console.log("monthlyRiskArray", monthlyRiskArray)
   let teamMonthlyRisk = {};
   for (let index = 0; index < monthlyRiskArray.length; index++) {
     let week = monthlyRiskArray[index];
@@ -420,7 +401,6 @@ async function getMonthlyRisk(teamId, monthStartDay, monthEndDay) {
   }
   log.info("riskCalculation|getMonthlyRisk", log.methodEnd);
 
-  console.log("teamMonthlyRisk", teamMonthlyRisk)
   return teamMonthlyRisk;
 }
 
