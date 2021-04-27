@@ -6,6 +6,7 @@ import interactionPlugin from "@fullcalendar/interaction"; // needed for dayClic
 import API from "@aws-amplify/api";
 import AddLeave from "./AddLeave";
 import Select from "react-select";
+import  "./CalendarView.css";
 
 export default class calendar extends React.Component {
   constructor(props) {
@@ -39,6 +40,7 @@ export default class calendar extends React.Component {
         "/team/getMonthlyRisk/" + this.state.id
       );
       this.setState({ monthlyRisk: response });
+      console.log("response is monthlyRisk in get month risk", this.state.monthlyRisk);
       this.setState({ isLoading: false });
     } catch (err) {
       console.error(err.message);
@@ -131,6 +133,8 @@ export default class calendar extends React.Component {
       console.log("response is", jsonData);
       const monthlyRisk = this.setMontlyRisk(response);
       this.setState({ monthlyRisk: monthlyRisk });
+      console.log("response is monthlyRisk in next", this.state.monthlyRisk);
+
     } catch (err) {
       console.error(err.message);
     }
@@ -168,6 +172,7 @@ export default class calendar extends React.Component {
 
       const monthlyRisk = this.setMontlyRisk(response);
       this.setState({ monthlyRisk: monthlyRisk });
+      console.log("response is monthlyRisk in pre", this.state.monthlyRisk);
     } catch (err) {
       console.error(err.message);
     }
@@ -234,6 +239,7 @@ export default class calendar extends React.Component {
       return (
         <div>
           <h1>{this.state.teamDetails.teamName}</h1>
+          <p>Select team name...</p>
           <Select
             placeholder="Select team..."
             value={this.state.selectedTeam}
