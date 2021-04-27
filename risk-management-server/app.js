@@ -69,11 +69,14 @@ app.get("/team/getTeamName/:teamId", async (req, res) => {
     });
 });
 
-
-app.get("/leave/getLeaveDetails/:teamId/:date", async (req, res) => {
+app.get("/leave/getLeaveDetails", async (req, res) => {
+// app.get("/leave/getLeaveDetails/:teamId/:date", async (req, res) => {
   log.info("/leave/getLeaveDetails/:teamId/:date", log.methodStart);
+  let teamId = 1;
+  let date = "2021-04-16";
   dbService
-    .getTeamEmployeeOnLeave(req.params.teamId, req.params.date)
+     .getTeamEmployeeOnLeave(teamId, date)
+    // .getTeamEmployeeOnLeave(req.params.teamId, req.params.date)
     .then((results) => {
       res.send(results);
       log.info("/leave/getLeaveDetails/:teamId/:date", log.methodEnd);
@@ -87,6 +90,25 @@ app.get("/leave/getLeaveDetails/:teamId/:date", async (req, res) => {
       log.info("/leave/getLeaveDetails/:teamId/:date", log.methodEnd);
     });
 });
+
+  app.get("/leave/getLeaveDetailsOfTeam/:teamId/:startDate/:endDate", async (req, res) => {
+    log.info("/leave/getLeaveDetailsOfTeam/:teamId/:startDate/:endDate", log.methodStart);
+    dbService
+    .getEmployeeDetailsOnLeave(req.params.teamId, req.params.startDate, req.params.endDate)
+      .then((results) => {
+        res.send(results);
+        log.info("/leave/getLeaveDetailsOfTeam/:teamId/:startDate/:endDate", log.methodEnd);
+      })
+      .catch((error) => {
+        log.error(
+          "/leave/getLeaveDetailsOfTeam/:teamId/:startDate/:endDate",
+          "Error in getLeaveDetails API " + error.message
+        );
+        res.send(error);
+        log.info("/leave/getLeaveDetails/:teamId/:startDate/:endDate", log.methodEnd);
+      });
+  });
+  
 
 app.get("/risk/getDayRisk", async (req, res) => {
   log.info("/risk/getDayRisk", log.methodStart);
@@ -306,6 +328,7 @@ app.get(
       });
   }
 );
+
 
 app.listen(2000, () => console.log("listening to port 2000"));
 

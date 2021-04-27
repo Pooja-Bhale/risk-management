@@ -1,10 +1,12 @@
 import React from "react";
+import { Redirect } from "react-router-dom";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction"; // needed for dayClick
 import API from "@aws-amplify/api";
 import AddLeave from "./AddLeave";
 import Select from "react-select";
+
 export default class calendar extends React.Component {
   constructor(props) {
     super(props);
@@ -18,6 +20,11 @@ export default class calendar extends React.Component {
       teamDetails: {},
       teamsList: [],
       teamsDetails: {},
+      redirect: { redirect: false, to: "" },
+      selectedTeam: {},
+      data: {},
+      startDate: "",
+      endDate: "",
     };
   }
 
@@ -31,9 +38,7 @@ export default class calendar extends React.Component {
         "riskmanagement",
         "/team/getMonthlyRisk/" + this.state.id
       );
-      console.log(" response in getMonthlyRisk", response);
       this.setState({ monthlyRisk: response });
-      console.log("monthlyRisk", this.state.monthlyRisk);
       this.setState({ isLoading: false });
     } catch (err) {
       console.error(err.message);
@@ -61,16 +66,38 @@ export default class calendar extends React.Component {
         label: d.teamName,
       }));
       this.setState({ teamsDetails: teamsDetail });
-      // console.log("teams details", this.state.teamsDetails);
       return response;
     } catch (err) {
       console.error(err.message);
     }
   }
+
+  fetchEvents(start, end) {
+    this.setState({
+      startDate: start,
+      endDate: end,
+    });
+
+    this.getEmployeeList();
+  }
+
+  getEmployeeList = async () => {
+    try {
+      let response = await API.get(
+        "riskmanagement",
+        `/leave/getLeaveDetailsOfTeam/${this.state.id}/${this.state.startDate}/${this.state.endDate}`
+      );
+      this.setState({ data: response });
+      return response;
+    } catch (err) {
+      console.error(err.message);
+    }
+  };
+
   async componentWillMount() {
-    this.getMonthlyRisk();
-    this.getTeamName();
-    this.getTeams();
+    await this.getMonthlyRisk();
+    await this.getTeamName();
+    await this.getTeams();
   }
 
   onNext = async (event) => {
@@ -138,6 +165,7 @@ export default class calendar extends React.Component {
           "/" +
           monthEndDay
       );
+
       const monthlyRisk = this.setMontlyRisk(response);
       this.setState({ monthlyRisk: monthlyRisk });
     } catch (err) {
@@ -173,30 +201,45 @@ export default class calendar extends React.Component {
     window.location = `/leaveDetails/${this.state.id}/${date}`;
   };
 
-  componentWillUpdate(nextProps, nextState) {
-    console.log("Component WILL UPDATE!");
-    console.log("idddddd", nextState.id);
-    console.log("this.id", this.state.id);
-    if (this.state.id !== nextState.id) {
-      this.getMonthlyRisk();
-      this.getTeamName();
-      this.getTeams();
+  async componentDidUpdate(param, prevState) {
+    if (
+      this.state.redirect.redirect === false &&
+      this.state.id !== prevState.id
+    ) {
+      this.setState({
+        ...this.state,
+        redirect: { redirect: true, to: `/Calendar/${this.state.id}` },
+      });
+    }
+    if (this.state.redirect.redirect) {
+      await this.getMonthlyRisk();
+      await this.getTeamName();
+      await this.getTeams();
+      this.setState({ ...this.state, redirect: { redirect: false, to: "" } });
     }
   }
 
-  componentDidUpdate(prevProps) {
-    console.log("id previouss", prevProps.id);
-
-  }
-
   render() {
+    if (this.state.redirect.redirect) {
+      return (
+        <Redirect
+          push
+          to={{
+            pathname: this.state.redirect.to,
+          }}
+        />
+      );
+    }
     if (this.state.isLoading === false) {
       return (
         <div>
           <h1>{this.state.teamDetails.teamName}</h1>
           <Select
-            value={this.state.teamsDetails.lable}
-            onChange={(option) => this.setState({ id: option.value })}
+            placeholder="Select team..."
+            value={this.state.selectedTeam}
+            onChange={(option) =>
+              this.setState({ id: option.value, selectedTeam: option })
+            }
             options={this.state.teamsDetails}
           />
           <div>
@@ -215,9 +258,19 @@ export default class calendar extends React.Component {
             <FullCalendar
               ref={this.calendar}
               plugins={[dayGridPlugin, interactionPlugin]}
-              dateClick={this.handleDateClick}
+              // dateClick={this.handleDateClick}
               showNonCurrentDates={false}
               fixedWeekCount={false}
+              datesSet={(arg) => {
+                console.log("datesSet prop");
+                setTimeout(() => {
+                  this.fetchEvents(
+                    arg.start.toISOString(),
+                    arg.end.toISOString()
+                  );
+                }, 3000);
+              }}
+              events={this.state.data}
               customButtons={{
                 next: {
                   text: "Next",
@@ -230,10 +283,6 @@ export default class calendar extends React.Component {
               }}
               views
               initialView="dayGridMonth"
-              visibleRange={{
-                start: "2021-04-01",
-                end: "2021-04-29",
-              }}
               dayCellDidMount={(e) => {
                 let dateIs = new Date(e.date);
                 let d = new Date(dateIs),
@@ -245,7 +294,6 @@ export default class calendar extends React.Component {
                 if (day.length < 2) day = "0" + day;
 
                 var formattedDate = [year, month, day].join("-");
-                console.log("formattedDate", formattedDate);
                 for (
                   let index = 0;
                   index <

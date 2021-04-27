@@ -2,7 +2,6 @@ const { Sequelize, Op } = require("sequelize");
 const Logger = require("./logger/logger");
 const log = new Logger();
 
-
 const {
   Employee,
   Team,
@@ -13,8 +12,8 @@ const {
 
 // function to add new record for employee when user sign up
 function addEmployee(value, cognitoId) {
-// Input is firstname, lastname, email, cognitoId
-// Output is new employee record will be created
+  // Input is firstname, lastname, email, cognitoId
+  // Output is new employee record will be created
   log.info("dbService|addEmployee", log.methodStart);
   return new Promise(async (resolve, reject) => {
     await Employee.create({
@@ -44,8 +43,8 @@ function addEmployee(value, cognitoId) {
 
 // function to get employeeId of logged in user
 function getEmployeeId(cognitoId) {
-// Input is cognitoId
-// Output is employeeId  
+  // Input is cognitoId
+  // Output is employeeId
   log.info("dbService|getEmployeeId", log.methodStart);
   return new Promise(async (resolve, reject) => {
     await Employee.findOne({
@@ -75,8 +74,8 @@ function getEmployeeId(cognitoId) {
 
 // Function to get employee details
 function getEmployeeDetails(employeeId) {
-// Input is employeeId
-// Output is employee's firstname, lastname
+  // Input is employeeId
+  // Output is employee's firstname, lastname
   log.info("dbService|getEmployeeDetails", log.methodStart);
   return new Promise(async (resolve, reject) => {
     await Employee.findOne({
@@ -106,8 +105,8 @@ function getEmployeeDetails(employeeId) {
 
 // Function to get teamId of the teams which are under team manager(employee)
 function getTeamId(employeeId) {
-// Input is employeeId
-// Output is teamId  
+  // Input is employeeId
+  // Output is teamId
   log.info("dbService|getTeamId", log.methodStart);
   return new Promise(async (resolve, reject) => {
     await TeamManager.findAll({
@@ -137,8 +136,8 @@ function getTeamId(employeeId) {
 
 // Function to get team details
 function getTeamDetails(teamId) {
-// Input is teamId
-// Output is teamId, teamName, threshold  
+  // Input is teamId
+  // Output is teamId, teamName, threshold
   log.info("dbService|getTeamDetails", log.methodStart);
   return new Promise(async (resolve, reject) => {
     await Team.findOne({
@@ -168,8 +167,8 @@ function getTeamDetails(teamId) {
 
 // Function to get team member count of team
 function getTeamMemberCount(teamId) {
-// Input is teamId
-// Output is team member count
+  // Input is teamId
+  // Output is team member count
   log.info("dbService|getTeamMemberCount", log.methodStart);
   return new Promise(async (resolve, reject) => {
     await TeamMember.findAll({
@@ -203,8 +202,8 @@ function getTeamMemberCount(teamId) {
 
 // Function to get employeeId of team member
 function getEmployeeIdOfTeamMember(teamId) {
-// Input is teamId
-// Output is employeeId  
+  // Input is teamId
+  // Output is employeeId
   log.info("dbService|getEmployeeIdOfTeamMember", log.methodStart);
   return new Promise(async (resolve, reject) => {
     await TeamMember.findAll({
@@ -232,10 +231,10 @@ function getEmployeeIdOfTeamMember(teamId) {
   });
 }
 
-// Function to get employeeId of employees on leave 
+// Function to get employeeId of employees on leave
 function getEmployeeOnLeave(employeeId, date) {
-// Input is employeeId and date
-// Output is  employeeId
+  // Input is employeeId and date
+  // Output is  employeeId
   log.info("dbService|getEmployeeOnLeave", log.methodStart);
   const Operator = Sequelize.Op;
   let dateIs = new Date(date);
@@ -300,8 +299,8 @@ function getEmployeeOnLeave(employeeId, date) {
 
 // Function to add new leave record
 function addLeave(value) {
-// Input is employeeId, startDate, endDate
-// Output is new record will be created  
+  // Input is employeeId, startDate, endDate
+  // Output is new record will be created
   log.info("dbService|addLeave", log.methodStart);
   return new Promise(async (resolve, reject) => {
     await Leave.create({
@@ -331,8 +330,8 @@ function addLeave(value) {
 
 // Function to get teams details
 async function getTeamsInfo(cognitoId) {
-// Input is cognitoId
-// Output is teamId, teamName, threshold  
+  // Input is cognitoId
+  // Output is teamId, teamName, threshold
   log.info("dbService|getTeamsInfo", log.methodStart);
   let employeeId = await getEmployeeId(cognitoId);
   let teamId = await getTeamId(employeeId.employeeId);
@@ -348,8 +347,8 @@ async function getTeamsInfo(cognitoId) {
 
 // Function to get complete team details of one specific team
 async function getTeamCompleteInfo(teamId) {
-// Input is teamId
-// Output is teamId, teamName, threshold, teamMemberId, teamMember's firstname, lastname  
+  // Input is teamId
+  // Output is teamId, teamName, threshold, teamMemberId, teamMember's firstname, lastname
   log.info("dbService|getTeamCompleteInfo", log.methodStart);
   let team = new Array(await getTeamDetails(teamId.teamId));
   let teamMember = await getEmployeeIdOfTeamMember(teamId.teamId);
@@ -368,8 +367,8 @@ async function getTeamCompleteInfo(teamId) {
 
 // Function to get teamMember details
 async function getTeamMemberDetails(cognitoId) {
-// Input is coginitoId
-// Output is teamMemberId, firstName, lastName  
+  // Input is coginitoId
+  // Output is teamMemberId, firstName, lastName
   log.info("dbService|getTeamMemberDetails", log.methodStart);
   let employeeIdOfManager = await getEmployeeId(cognitoId);
   let teamId = await getTeamId(employeeIdOfManager.employeeId);
@@ -384,7 +383,7 @@ async function getTeamMemberDetails(cognitoId) {
     }
   }
   let distinct = (value, index, self) => {
-    return self.indexOf(value) === index; 
+    return self.indexOf(value) === index;
   };
   let distinctTeamMemberIdArray = teamMemberIdArray.filter(distinct);
 
@@ -400,7 +399,7 @@ async function getTeamMemberDetails(cognitoId) {
     value: d.employeeId,
     label: d.firstName + " " + d.lastName,
   }));
-  console.log("employeeDetails", employeeDetails)
+  console.log("employeeDetails", employeeDetails);
   log.info("dbService|getTeamMemberDetails", log.methodEnd);
 
   return employeeDetails;
@@ -408,8 +407,8 @@ async function getTeamMemberDetails(cognitoId) {
 
 // Function to get team employees on leave
 async function getTeamEmployeeOnLeave(teamId, date) {
-// Input is teamId, date
-// Output is employeeId, firstName, lastName
+  // Input is teamId, date
+  // Output is employeeId, firstName, lastName
   log.info("dbService|getTeamEmployeeOnLeave", log.methodStart);
   let dateIs = new Date(date);
   let teamMemberIdArray = new Array();
@@ -457,6 +456,135 @@ async function getTeamEmployeeOnLeave(teamId, date) {
   return employeeOnLeaveDetails;
 }
 
+function getEmployeeIdOnLeaveEmployee(teamMemberIdArray, dateIs) {
+  log.info("dbService|getEmployeeIdOnLeaveEmployee", log.methodStart);
+  let date = new Date(dateIs);
+  let day = date.getDay();
+  if (day == 1 || day == 2 || day == 3 || day == 4 || day == 5) {
+  return new Promise(async (resolve, reject) => {
+    const Operator = Sequelize.Op;
+    await Leave.findAll({
+      attributes: ["employeeId"],
+      where: {
+        employeeId: {
+          [Operator.in]: teamMemberIdArray,
+        },
+
+        startDate: {
+          [Operator.lte]: dateIs,
+        },
+
+        endDate: {
+          [Operator.gte]: dateIs,
+        },
+      },
+    })
+      .then((results) => {
+        if (results != null) {
+          let employeeldArray = results.map(function (employeeId) {
+            return parseInt(employeeId["employeeId"]);
+          });
+          resolve(employeeldArray);
+          console.log("res is", results);
+        } else {
+          reject("EmployeeId not found!!");
+        }
+        log.info("dbService|getEmployeeIdOnLeaveEmployee", log.methodEnd);
+      })
+      .catch((error) => {
+        log.error(
+          "dbService|getEmployeeIdOnLeaveEmployee",
+          "Error in getEmployeeIdOnLeaveEmployee function " + error.message
+        );
+        reject(error);
+        log.info("dbService|getEmployeeIdOnLeaveEmployee", log.methodEnd);
+      });
+  });
+} else {
+  return new Promise((resolve, reject) => {
+    let employeeId = [];
+    let count = Promise.resolve(employeeId);
+    count
+      .then((value) => {
+        resolve(value);
+        log.info("dbService|getEmployeeIdOnLeaveEmployee", log.methodEnd);
+      })
+      .catch((error) => {
+        log.error(
+          "dbService|getEmployeeIdOnLeaveEmployee",
+          "Error in getEmployeeIdOnLeaveEmployee function " + error.message
+        );
+        reject(error);
+        log.info("dbService|getEmployeeIdOnLeaveEmployee", log.methodEnd);
+      });
+  });
+}
+}
+
+async function getEmployeeDetailsOnLeave(teamId, startDate, endDate) {
+  log.info("dbService|getEmployeeDetailsOnLeave", log.methodStart);
+  let teamMemberIdArray = new Array();
+  let teamMemberId = await getEmployeeIdOfTeamMember(teamId);
+  for (let index = 0; index < teamMemberId.length; index++) {
+    teamMemberIdArray.push(teamMemberId[index].employeeId);
+  }
+
+  let start = new Date(startDate);
+  let end = new Date(endDate);
+  let monthDateArray = new Array();
+
+  for (let d = start; d <= end; d.setDate(d.getDate() + 1)) {
+    monthDateArray.push(new Date(d));
+  }
+
+  let resultArray = new Array();
+  for (let index = 0; index < monthDateArray.length; index++) {
+    let dateIs = new Date(monthDateArray[index]);
+    let d = new Date(dateIs),
+      month = "" + (d.getMonth() + 1),
+      day = "" + d.getDate(),
+      year = d.getFullYear();
+
+    if (month.length < 2) month = "0" + month;
+    if (day.length < 2) day = "0" + day;
+
+    var formattedDate = [year, month, day].join("-");
+      var result = await getEmployeeIdOnLeaveEmployee(
+        teamMemberIdArray,
+        dateIs
+      );
+    if (result.length != 0) {
+      let resObject = {
+        employeeId: result,
+        date: formattedDate,
+      };
+      resultArray.push(resObject);
+    }
+  }
+
+  let employeeOnLeaveDetails = new Array();
+  for (let index = 0; index < resultArray.length; index++) {
+    let empIdArray = resultArray[index].employeeId;
+    for (let i = 0; i < empIdArray.length; i++) {
+      let employeeDetails = await getEmployeeDetails(empIdArray[i]);
+      let resObject = {
+        title:
+          employeeDetails.firstName +
+          " " +
+          employeeDetails.lastName +
+          " " +
+          "On leave",
+        date: resultArray[index].date,
+        color: "#91e038",
+      };
+      employeeOnLeaveDetails.push(resObject);
+    }
+  }
+  log.info("dbService|getEmployeeDetailsOnLeave", log.methodEnd);
+
+  return employeeOnLeaveDetails;
+}
+
 module.exports = {
   addEmployee,
   getEmployeeId,
@@ -471,4 +599,6 @@ module.exports = {
   getTeamCompleteInfo,
   getTeamMemberDetails,
   getTeamEmployeeOnLeave,
+  getEmployeeDetailsOnLeave,
+  getEmployeeIdOnLeaveEmployee,
 };

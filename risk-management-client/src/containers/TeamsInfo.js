@@ -6,7 +6,8 @@ import "./TeamsInfo";
 var TeamsInfo = () => {
   let currentDate = new Date();
   let date = new Date();
-  let startDay = date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1);
+  let startDay =
+    date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1);
   let startDateOfWeek = new Date(date.setDate(startDay));
 
   let lastday = date.getDate() - (date.getDay() - 1) + 6;
@@ -42,16 +43,16 @@ var TeamsInfo = () => {
             teamId: id,
             teamName: name,
             day: null,
-            weekRisk: [null, null, null, null, null, null, null]
-          }
+            weekRisk: [null, null, null, null, null, null, null],
+          },
         };
       } else {
         newTeamData = {
           ...newTeamData,
           [id]: {
             ...allTeams[i],
-            ...newTeamData[id]
-          }
+            ...newTeamData[id],
+          },
         };
       }
     }
@@ -83,17 +84,26 @@ var TeamsInfo = () => {
   };
 
   var showTodayRisk = async (teamData) => {
+    console.log("in today risk fun")
     try {
       await API.get("riskmanagement", "/risk/getDayRisk").then((response) => {
         setDayRisk(response);
-        //console.log("res fffor today", response);
         let tempTeamDataMap = { ...teamData };
-        for (let index = 0; index < response.length; index++) {
-          let id = response[index];
-          let risk = response[index].riskIs;
+        for (let index = 0; index < dayRisk.length; index++) {
+          let id = teamDataKeys[index];
+          let risk = dayRisk[index].riskIs;
           tempTeamDataMap[id].day = risk;
         }
         setTeamData(tempTeamDataMap);
+        // console.log("in today risk fun")
+
+        let date = new Date()
+        console.log("date", date)
+
+        setDailyDate(date.toDateString());
+        console.log("DailyDate", dailyDate)
+
+
         //console.log("teamData in today risk", teamData);
         return tempTeamDataMap;
       });
@@ -141,7 +151,10 @@ var TeamsInfo = () => {
     let previousDate = prevDate.toISOString();
     //console.log("previousDate", previousDate);
     try {
-      await API.get("riskmanagement", `/risk/getPreviousNextDayRisk/${previousDate}`).then((response) => {
+      await API.get(
+        "riskmanagement",
+        `/risk/getPreviousNextDayRisk/${previousDate}`
+      ).then((response) => {
         //console.log("response for prev dday", response);
         let tempTeamDataMap = { ...teamData };
         for (let index = 0; index < response.length; index++) {
@@ -172,7 +185,10 @@ var TeamsInfo = () => {
     let nextDateString = nextDateObject.toISOString();
     //console.log("previousDate", nextDate);
     try {
-      await API.get("riskmanagement", `/risk/getPreviousNextDayRisk/${nextDateString}`).then((response) => {
+      await API.get(
+        "riskmanagement",
+        `/risk/getPreviousNextDayRisk/${nextDateString}`
+      ).then((response) => {
         let tempTeamDataMap = { ...teamData };
         for (let index = 0; index < response.length; index++) {
           let id = teamDataKeys[index];
@@ -188,18 +204,28 @@ var TeamsInfo = () => {
 
   async function showWeeklyRisk(teamData) {
     try {
-      await API.get("riskmanagement", "/risk/getWeeklyRisk").then((response) => {
-        setWeeklyRisk(response);
-        let weeklyRiskKeys = Object.keys(response);
-        let tempTeamDataMap = { ...teamData };
-        for (let index = 0; index < weeklyRiskKeys.length; index++) {
-          let id = weeklyRiskKeys[index];
-          let risk = response[id].weekRisk;
-          tempTeamDataMap[id].weekRisk = risk;
+      await API.get("riskmanagement", "/risk/getWeeklyRisk").then(
+        (response) => {
+          setWeeklyRisk(response);
+          let weeklyRiskKeys = Object.keys(response);
+          let tempTeamDataMap = { ...teamData };
+          for (let index = 0; index < weeklyRiskKeys.length; index++) {
+            let id = weeklyRiskKeys[index];
+            let risk = response[id].weekRisk;
+            tempTeamDataMap[id].weekRisk = risk;
+          }
+          setTeamData(tempTeamDataMap);
+          let startDay =
+            date.getDate() - date.getDay() + (date.getDay() === 0 ? -6 : 1);
+          let startDateOfWeek = new Date(date.setDate(startDay));
+
+          let lastday = date.getDate() - (date.getDay() - 1) + 6;
+          let endDateOfWeek = new Date(date.setDate(lastday));
+          setStartDate(startDateOfWeek.toDateString());
+          setEndDate(endDateOfWeek.toDateString());
+          return tempTeamDataMap;
         }
-        setTeamData(tempTeamDataMap);
-        return tempTeamDataMap;
-      });
+      );
     } catch (err) {
       console.error(err.message);
     }
@@ -228,13 +254,20 @@ var TeamsInfo = () => {
       console.log("allTeamsData 11 ", allTeamsData);
       let updatedTeamData = getUpdatedTeamData(allTeamsData, teamData);
       console.log("updatedTeamData 1", updatedTeamData);
-      const updateDataWithDayRisk = await showTodayRiskWithoutState(updatedTeamData);
+      const updateDataWithDayRisk = await showTodayRiskWithoutState(
+        updatedTeamData
+      );
       console.log("updateDataWithDayRisk ", updateDataWithDayRisk);
       updatedTeamData = getUpdatedTeamData(allTeamsData, updateDataWithDayRisk);
       console.log("updatedTeamData 2", updatedTeamData);
-      const updateDataWithWeeklyRisk = await showWeeklyRiskWithoutState(updatedTeamData);
+      const updateDataWithWeeklyRisk = await showWeeklyRiskWithoutState(
+        updatedTeamData
+      );
       console.log("updateDataWithWeeklyRisk ", updateDataWithWeeklyRisk);
-      updatedTeamData = getUpdatedTeamData(allTeamsData, updateDataWithWeeklyRisk);
+      updatedTeamData = getUpdatedTeamData(
+        allTeamsData,
+        updateDataWithWeeklyRisk
+      );
       console.log("updatedTeamData 3 ", updatedTeamData);
       setTeamData(updatedTeamData);
     }
@@ -265,7 +298,10 @@ var TeamsInfo = () => {
     //console.log("endDateOfWeek iso", endDateOfWeek);
 
     try {
-      await API.get("riskmanagement", `/risk/getPreviousNextWeekRisk/${startDateOfWeek}/${endDateOfWeek}`).then((response) => {
+      await API.get(
+        "riskmanagement",
+        `/risk/getPreviousNextWeekRisk/${startDateOfWeek}/${endDateOfWeek}`
+      ).then((response) => {
         //console.log("response", response);
         let responseKeys = Object.keys(response);
         //console.log("responseKeys", responseKeys);
@@ -311,7 +347,10 @@ var TeamsInfo = () => {
     //console.log("startDateOfWeek", startDateOfWeek);
     //console.log("endDateOfWeek", endDateOfWeek);
     try {
-      await API.get("riskmanagement", `/risk/getPreviousNextWeekRisk/${startDateOfWeek}/${endDateOfWeek}`).then((response) => {
+      await API.get(
+        "riskmanagement",
+        `/risk/getPreviousNextWeekRisk/${startDateOfWeek}/${endDateOfWeek}`
+      ).then((response) => {
         //console.log("response", response);
         let responseKeys = Object.keys(response);
         //console.log("responseKeys", responseKeys);
@@ -347,7 +386,8 @@ var TeamsInfo = () => {
             <a
               href={`/Calendar/${teamDataKeys[0]}`}
               className="btn btn-success float-right"
-              Style="margin-top:30px; margin-bottom:30px; margin-right:10px;">
+              Style="margin-top:30px; margin-bottom:30px; margin-right:10px;"
+            >
               Month
             </a>
 
@@ -356,7 +396,8 @@ var TeamsInfo = () => {
               className="btn btn-success float-right"
               onClick={() => {
                 showWeeklyRisk(teamData);
-              }}>
+              }}
+            >
               Week
             </button>
             <button
@@ -364,7 +405,8 @@ var TeamsInfo = () => {
               className="btn btn-success float-right"
               onClick={() => {
                 showTodayRisk(teamData);
-              }}>
+              }}
+            >
               Today
             </button>
           </div>
@@ -379,7 +421,11 @@ var TeamsInfo = () => {
             <th>
               <div className="float-left" Style="display: flex;">
                 <FaIcons.FaChevronLeft
-                  style={{ marginTop: "2px", paddingRight: "8px", fontSize: "larger" }}
+                  style={{
+                    marginTop: "2px",
+                    paddingRight: "8px",
+                    fontSize: "larger",
+                  }}
                   // Style="margin-top: 2px;padding-right: 8px;font-size: larger;"
                   onClick={() => {
                     showPreviousDayRisk();
@@ -390,7 +436,11 @@ var TeamsInfo = () => {
                   {/* Today */}
                 </p>
                 <FaIcons.FaChevronRight
-                  style={{ marginTop: "2px", paddingLeft: "8px", fontSize: "larger" }}
+                  style={{
+                    marginTop: "2px",
+                    paddingLeft: "8px",
+                    fontSize: "larger",
+                  }}
                   // Style="margin-top: 2px;padding-left: 8px;font-size: larger;"
                   onClick={() => {
                     showNextDayRisk();
@@ -401,7 +451,11 @@ var TeamsInfo = () => {
             <th Style="display: flex;flex-direction: column;align-items: center;">
               <div Style="display: flex;">
                 <FaIcons.FaChevronLeft
-                  style={{ marginTop: "2px", paddingRight: "8px", fontSize: "larger" }}
+                  style={{
+                    marginTop: "2px",
+                    paddingRight: "8px",
+                    fontSize: "larger",
+                  }}
                   onClick={() => {
                     showPreviousWeekRisk();
                   }}
@@ -410,7 +464,11 @@ var TeamsInfo = () => {
                   week ({startDate} - {endDate})
                 </p>
                 <FaIcons.FaChevronRight
-                  style={{ marginTop: "2px", paddingLeft: "8px", fontSize: "larger" }}
+                  style={{
+                    marginTop: "2px",
+                    paddingLeft: "8px",
+                    fontSize: "larger",
+                  }}
                   onClick={() => {
                     showNextWeekRisk();
                   }}
@@ -425,7 +483,10 @@ var TeamsInfo = () => {
             return (
               <tr key={team}>
                 <td Style="display: flex;align-items: center;">
-                  <a href={"/TeamDetails/" + teamData[team].teamId} Style="color:black">
+                  <a
+                    href={"/TeamDetails/" + teamData[team].teamId}
+                    Style="color:black"
+                  >
                     {teamData[team].teamName}
                   </a>
                 </td>
@@ -447,9 +508,15 @@ var TeamsInfo = () => {
                         return (
                           <div Style="display: inline-block;">
                             {weekrisk === true ? (
-                              <FaIcons.FaSquare size={20} style={{ fill: "red" }} />
+                              <FaIcons.FaSquare
+                                size={20}
+                                style={{ fill: "red" }}
+                              />
                             ) : (
-                              <FaIcons.FaSquare size={20} style={{ fill: "green" }} />
+                              <FaIcons.FaSquare
+                                size={20}
+                                style={{ fill: "green" }}
+                              />
                             )}
                           </div>
                         );
